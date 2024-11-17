@@ -18,9 +18,13 @@ class GameAssets :
         self.bullet_expl = self.loadImageAsset("Explosion_01.png")
         self.bullet_expl = pygame.transform.scale( self.bullet_expl, (self.bullet_expl.get_width()/16, self.bullet_expl.get_height()/16))
         self.enemys      = [ self.loadImageAsset(f"enemy\{i}.png") for i in range(8,17) ]
-        # self.enemys      = [ self.loadImageAsset("enemy\10.png") ]
         for i in range( len(self.enemys)):
             self.enemys[i] = pygame.transform.scale( self.enemys[i], (self.enemys[i].get_width()/8, self.enemys[i].get_height()/8))
+        self.healthTable = self.loadImageAsset("health\Health_Bar_Table.png")
+        self.healthTable = pygame.transform.scale(self.healthTable, (self.healthTable.get_width()/2, self.healthTable.get_height()/2))
+        self.healthBar   = self.loadImageAsset("health\Health_Dot.png")
+        # self.healthBar   = pygame.transform.scale(self.healthBar, (self.healthBar.get_width()/2, self.healthBar.get_height()/2))
+        self.healthBar   = pygame.transform.scale(self.healthBar, (21, self.healthBar.get_height()/2))
     def loadImageAsset(self, name):
         return pygame.image.load(f"assets\{name}")
 
@@ -66,7 +70,7 @@ class Bullet(GameObject):
         return self.asset
 
 
-        
+
 
 class SpaceShooter(Game):
     def __init__(self, dim, title):
@@ -86,6 +90,13 @@ class SpaceShooter(Game):
         self.bullet_probuse_delay = 6 #frames
         self.bulet_produse = 0
 
+        # HEALTH:
+        self.helthPos = (15,15)
+        self.FirstBarPos = (15+3, 15+3)
+        self.healthTable = self.assets.healthTable
+        self.healthBar   = self.assets.healthBar
+        width = self.healthBar.get_width()
+        self.helthBars = [ GameObject(self.healthBar, self.FirstBarPos[0] + i*width, self.FirstBarPos[1] ) for i in range(0,8) ]
     def onControl(self):
         char = self.character
         if self.right_pressed and (char.x < (self.size[0]-char.asset.get_width())):
@@ -114,20 +125,24 @@ class SpaceShooter(Game):
             self.bullets_col.pop(0)
             print("delete buulet")
         for enemy in self.enemes:
-            for i in range(len(self.bullets)):
-                bullet = self.bullets[i]
-                # if bullet.collition( enemy ):
-                if self.bullets_col[i] > 0 or enemy.collition( bullet ) :
-                    print( "collition ")
-                    self.bullets_col[i] += 1
-                    if self.bullets_col[i]%2 == 0:
-                        self.bullets[i].x += 1
-                    else :
-                        self.bullets[i].x -=1
-                    if self.bullets_col[i] == 1:
-                        self.bullets[i].x -= (self.bullets[i].asset_colition.get_width()/2) + (self.bullets[i].asset.get_width()/2)
-                        self.bullets[i].y -= (self.bullets[i].asset_colition.get_height())
-        
+            self.controlColitionPerEnemy(enemy)
+
+    def controlColitionPerEnemy(self, enemy):
+        for i in range(len(self.bullets)):
+            bullet = self.bullets[i]
+            # if bullet.collition( enemy ):
+            if self.bullets_col[i] > 0 or enemy.collition( bullet ) :
+                print( "collition ")
+                self.bullets_col[i] += 1
+                if self.bullets_col[i]%2 == 0:
+                    self.bullets[i].x += 1
+                else :
+                    self.bullets[i].x -=1
+                if self.bullets_col[i] == 1:
+                    self.bullets[i].x -= (self.bullets[i].asset_colition.get_width()/2) + (self.bullets[i].asset.get_width()/2)
+                    self.bullets[i].y -= (self.bullets[i].asset_colition.get_height())
+                    self.helthBars.pop()
+
     
     def onDraw(self):
         super().onDraw()
@@ -138,4 +153,8 @@ class SpaceShooter(Game):
         for i in range( len(self.bullets )):
             bullet = self.bullets[i]
             self.screen.blit( bullet.get_asset( self.bullets_col[i] ), bullet.position() )
+        
+        self.screen.blit(self.healthTable, self.helthPos)
+        for bar in self.helthBars : 
+            self.screen.blit( bar.asset, bar.position())
         
