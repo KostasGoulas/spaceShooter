@@ -4,14 +4,20 @@ def is_point_inside_box( point, box_point, box_width, box_heigth ):
     return (point[0] >= box_point[0] and point[0] <= box_point[0]+box_width) and (point[1] >= box_point[1] and point[1] <= box_point[1]+box_heigth)
 
 class GameAssets :
-    def __init__(self):
+    def __init__(self, win_size):
         self.simple_char = self.loadImageAsset("Missile_03.png");
+        self.simple_char = pygame.transform.scale(self.simple_char, ( self.simple_char.get_width()/4, self.simple_char.get_height()/4) )
         self.move_right  = self.loadImageAsset("Missile_03.png");
+        self.move_right  = pygame.transform.scale(self.move_right, ( self.move_right.get_width()/4, self.move_right.get_height()/4) )
         self.move_left   = self.loadImageAsset("Missile_03.png")
+        self.move_left   = pygame.transform.scale(self.move_left, ( self.move_left.get_width()/4, self.move_left.get_height()/4) )
         self.background  = self.loadImageAsset("small-bubbles-foam.jpg")
+        self.background  = pygame.transform.scale( self.background, win_size ) # this is to fit the background to the window 
         self.bullet      = self.loadImageAsset("Rocket_Effect_01.png")
+        self.bullet      = pygame.transform.scale( self.bullet, (self.bullet.get_width()/16, self.bullet.get_height()/16))
     def loadImageAsset(self, name):
         return pygame.image.load(f"assets\{name}")
+
 
 class GameObject:
     def __init__(self, asset, x, y):
@@ -46,7 +52,7 @@ class Bullet(GameObject):
         super().__init__(asset, x, y)
         self.speed = speed
     def move_forword( self ):
-        self.update(0,self.speed)
+        self.update(0,-self.speed)
 
 
         
@@ -54,24 +60,45 @@ class Bullet(GameObject):
 class SpaceShooter(Game):
     def __init__(self, dim, title):
         super().__init__(dim, title)
-        self.assets  = GameAssets()
-        self.char = self.assets.move_left # in this version left right and char is the same
-        self.char = pygame.transform.scale(self.char, ( self.char.get_width()/4, self.char.get_height()/4) )
-        self.assets.background = pygame.transform.scale( self.assets.background, self.size ) # this is to fit the background to the window 
-        self.char_x  = (self.size[0]/2) - self.char.get_width()/2
-        self.char_y  = self.size[1] - self.size[1]/20 - self.char.get_height()
-        self.move_dis = self.char.get_width()/4 
-        print( self.assets.move_left )
+        self.assets  = GameAssets(self.size)
+        char = self.assets.move_left # in this version left right and char is the same
+        char_x  = (self.size[0]/2) - char.get_width()/2
+        char_y  = self.size[1] - self.size[1]/20 - char.get_height()
+        self.move_dis = char.get_width()/4 
+
+        self.character = GameObject(char, char_x, char_y)
+        self.bullets = []
+        self.enemys  = []
+        self.init_bullet_pos_y =  self.character.y - char.get_height()
 
     def onControl(self):
-        if self.right_pressed and (self.char_x < (self.size[0]-self.char.get_width())):
-            self.char_x += self.move_dis
+        char = self.character
+        if self.right_pressed and (char.x < (self.size[0]-char.asset.get_width())):
+            char.x += self.move_dis
         
-        if self.left_pressed and (self.char_x > 0):
-            self.char_x -= self.move_dis
+        if self.left_pressed and (char.x > 0):
+            char.x -= self.move_dis
+
+        if self.space_pressed :
+            self.bullets.append( Bullet(self.assets.bullet, self.character.x + self.character.asset.get_width()/2, self.init_bullet_pos_y, 2 ) )
+        
+        for bullet in self.bullets:
+            bullet.move_forword()
+        
+        pop_bullet = False
+        for bullet in self.bullets:
+            if bullet.y < 0:
+                pop_bullet = True
+        if pop_bullet :
+            self.bullets.pop(0)
+            print("delete buulet")
+                
+
         
     
     def onDraw(self):
         super().onDraw()
         self.screen.blit( self.assets.background,(0,0) )
-        self.screen.blit( self.char, (self.char_x, self.char_y))
+        self.screen.blit( self.character.asset, (self.character.x, self.character.y))
+        for bullet in self.bullets:
+            self.screen.blit( bullet.asset, bullet.position() )
