@@ -69,7 +69,10 @@ class SpaceShooter(Game):
         self.character = GameObject(char, char_x, char_y)
         self.bullets = []
         self.enemys  = []
-        self.init_bullet_pos_y =  self.character.y - char.get_height()
+        self.init_bullet_pos_y =  char_y
+
+        self.bullet_probuse_delay = 6 #frames
+        self.bulet_produse = 0
 
     def onControl(self):
         char = self.character
@@ -80,18 +83,21 @@ class SpaceShooter(Game):
             char.x -= self.move_dis
 
         if self.space_pressed :
-            self.bullets.append( Bullet(self.assets.bullet, self.character.x + self.character.asset.get_width()/2, self.init_bullet_pos_y, 2 ) )
-        
-        for bullet in self.bullets:
-            bullet.move_forword()
+            if self.bulet_produse == self.bullet_probuse_delay :
+                self.bullets.append( Bullet(self.assets.bullet, self.character.x + self.character.asset.get_width()/2, self.init_bullet_pos_y, 6 ) )
+                self.bulet_produse = 0
+        if self.bulet_produse != self.bullet_probuse_delay:
+           self.bulet_produse += 1
         
         pop_bullet = False
         for bullet in self.bullets:
+            bullet.move_forword()
             if bullet.y < 0:
                 pop_bullet = True
         if pop_bullet :
             self.bullets.pop(0)
             print("delete buulet")
+        
                 
 
         
