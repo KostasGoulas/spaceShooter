@@ -15,6 +15,12 @@ class GameAssets :
         self.background  = pygame.transform.scale( self.background, win_size ) # this is to fit the background to the window 
         self.bullet      = self.loadImageAsset("Rocket_Effect_01.png")
         self.bullet      = pygame.transform.scale( self.bullet, (self.bullet.get_width()/16, self.bullet.get_height()/16))
+        self.bullet_expl = self.loadImageAsset("Explosion_01.png")
+        self.bullet_expl = pygame.transform.scale( self.bullet_expl, (self.bullet_expl.get_width()/16, self.bullet_expl.get_height()/16))
+        self.enemys      = [ self.loadImageAsset(f"enemy\{i}.png") for i in range(8,17) ]
+        # self.enemys      = [ self.loadImageAsset("enemy\10.png") ]
+        for i in range( len(self.enemys)):
+            self.enemys[i] = pygame.transform.scale( self.enemys[i], (self.enemys[i].get_width()/8, self.enemys[i].get_height()/8))
     def loadImageAsset(self, name):
         return pygame.image.load(f"assets\{name}")
 
@@ -31,8 +37,8 @@ class GameObject:
     def collition( self, obj ):
         p1 = [obj.x                      , obj.y]
         p2 = [obj.x+obj.asset.get_width(), obj.y]
-        p3 = [obj.x+obj.asset.get_width(), obj.y+obj.asset.get_height()]
-        p4 = [obj.x                      , obj.y+obj.asset.get_height()]
+        p3 = [obj.x+obj.asset.get_width(), obj.y-obj.asset.get_height()]
+        p4 = [obj.x                      , obj.y-obj.asset.get_height()]
         if is_point_inside_box(p1, self.position(), self.asset.get_width(), self.asset.get_height()):
             return True
         elif is_point_inside_box(p2, self.position(), self.asset.get_width(), self.asset.get_height()):
@@ -48,11 +54,16 @@ class GameObject:
 
 
 class Bullet(GameObject):
-    def __init__(self, asset, x, y, speed):
+    def __init__(self, asset, x, y, speed, asset_colition):
         super().__init__(asset, x, y)
         self.speed = speed
+        self.asset_colition = asset_colition
     def move_forword( self ):
         self.update(0,-self.speed)
+    def get_asset(self,is_colition):
+        if is_colition > 0:
+            return self.asset_colition
+        return self.asset
 
 
         
@@ -68,8 +79,9 @@ class SpaceShooter(Game):
 
         self.character = GameObject(char, char_x, char_y)
         self.bullets = []
-        self.enemys  = []
-        self.init_bullet_pos_y =  char_y
+        self.bullets_col = []
+        self.enemes  = [ GameObject(self.assets.enemys[2], char_x, 140+self.assets.enemys[2].get_height()) ]
+        self.init_bullet_pos_y =  char_y-self.assets.bullet.get_height()
 
         self.bullet_probuse_delay = 6 #frames
         self.bulet_produse = 0
@@ -84,27 +96,46 @@ class SpaceShooter(Game):
 
         if self.space_pressed :
             if self.bulet_produse == self.bullet_probuse_delay :
-                self.bullets.append( Bullet(self.assets.bullet, self.character.x + self.character.asset.get_width()/2, self.init_bullet_pos_y, 6 ) )
+                self.bullets.append( Bullet(self.assets.bullet, self.character.x + self.character.asset.get_width()/2, self.init_bullet_pos_y, 6, self.assets.bullet_expl ) )
+                self.bullets_col.append( 0 )
                 self.bulet_produse = 0
         if self.bulet_produse != self.bullet_probuse_delay:
            self.bulet_produse += 1
         
         pop_bullet = False
-        for bullet in self.bullets:
-            bullet.move_forword()
-            if bullet.y < 0:
+        for i in range( len(self.bullets) ):
+            bullet = self.bullets[i]
+            if self.bullets_col[i] == 0 :
+                bullet.move_forword()
+            if bullet.y < 0 or self.bullets_col[i] >= 6:
                 pop_bullet = True
         if pop_bullet :
             self.bullets.pop(0)
+            self.bullets_col.pop(0)
             print("delete buulet")
-        
-                
-
+        for enemy in self.enemes:
+            for i in range(len(self.bullets)):
+                bullet = self.bullets[i]
+                # if bullet.collition( enemy ):
+                if self.bullets_col[i] > 0 or enemy.collition( bullet ) :
+                    print( "collition ")
+                    self.bullets_col[i] += 1
+                    if self.bullets_col[i]%2 == 0:
+                        self.bullets[i].x += 1
+                    else :
+                        self.bullets[i].x -=1
+                    if self.bullets_col[i] == 1:
+                        self.bullets[i].x -= (self.bullets[i].asset_colition.get_width()/2) + (self.bullets[i].asset.get_width()/2)
+                        self.bullets[i].y -= (self.bullets[i].asset_colition.get_height())
         
     
     def onDraw(self):
         super().onDraw()
         self.screen.blit( self.assets.background,(0,0) )
-        self.screen.blit( self.character.asset, (self.character.x, self.character.y))
-        for bullet in self.bullets:
-            self.screen.blit( bullet.asset, bullet.position() )
+        self.screen.blit( self.character.asset, self.character.position() )
+        for enemy in self.enemes :
+            self.screen.blit( enemy.asset, enemy.position() )
+        for i in range( len(self.bullets )):
+            bullet = self.bullets[i]
+            self.screen.blit( bullet.get_asset( self.bullets_col[i] ), bullet.position() )
+        
