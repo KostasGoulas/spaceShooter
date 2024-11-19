@@ -1,8 +1,6 @@
 from gameWindow import *
 from endGame import *
-
-def is_point_inside_box( point, box_point, box_width, box_heigth ):
-    return (point[0] >= box_point[0] and point[0] <= box_point[0]+box_width) and (point[1] >= box_point[1] and point[1] <= box_point[1]+box_heigth)
+from algos import *
 
 class GameAssets :
     def __init__(self, win_size):
@@ -92,13 +90,20 @@ class SpaceShooter(Game):
         self.FirstBarPos = (15+3, 15+3)
         self.healthTable = self.assets.healthTable
         self.healthBar   = self.assets.healthBar
-        width = self.healthBar.get_width()
-        self.helthBars = [ GameObject(self.healthBar, self.FirstBarPos[0] + i*width, self.FirstBarPos[1] ) for i in range(0,8) ]
+        self.health_bar_width = self.healthBar.get_width()
+        self.helthBars = [ GameObject(self.healthBar, self.FirstBarPos[0] + i*self.health_bar_width, self.FirstBarPos[1] ) for i in range(0,8) ]
 
         self.isGameOver  = False
         self.gameOver = endGame( self.screen, self.size, self.clock )
+        self.restart  = False
+    def onRestart(self):
+        self.helthBars = [ GameObject(self.healthBar, self.FirstBarPos[0] + i*self.health_bar_width, self.FirstBarPos[1] ) for i in range(0,8) ]
 
     def onControl(self):
+        if self.restart :
+            self.onRestart()
+            self.isGameOver = False
+            self.restart = False
         if self.isGameOver :
             self.gameOver.onControl()
         else :
@@ -150,7 +155,11 @@ class SpaceShooter(Game):
                     self.bullets[i].y -= (self.bullets[i].asset_colition.get_height())
                     if len(self.helthBars) > 0:
                         self.helthBars.pop()
-
+    def onEvent(self):
+        if self.isGameOver :
+            self.end, self.restart = self.gameOver.onEvent()
+        else :
+            return super().onEvent()
     
     def onDraw(self):
         super().onDraw()

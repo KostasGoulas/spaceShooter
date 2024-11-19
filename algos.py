@@ -1,0 +1,2 @@
+def is_point_inside_box( point, box_point, box_width, box_heigth ):
+    return (point[0] >= box_point[0] and point[0] <= box_point[0]+box_width) and (point[1] >= box_point[1] and point[1] <= box_point[1]+box_heigth)
