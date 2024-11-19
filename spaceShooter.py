@@ -1,4 +1,5 @@
 from gameWindow import *
+from endGame import *
 
 def is_point_inside_box( point, box_point, box_width, box_heigth ):
     return (point[0] >= box_point[0] and point[0] <= box_point[0]+box_width) and (point[1] >= box_point[1] and point[1] <= box_point[1]+box_heigth)
@@ -56,7 +57,6 @@ class GameObject:
         self.x += dx
         self.y += dy
 
-
 class Bullet(GameObject):
     def __init__(self, asset, x, y, speed, asset_colition):
         super().__init__(asset, x, y)
@@ -68,9 +68,6 @@ class Bullet(GameObject):
         if is_colition > 0:
             return self.asset_colition
         return self.asset
-
-
-
 
 class SpaceShooter(Game):
     def __init__(self, dim, title):
@@ -97,35 +94,45 @@ class SpaceShooter(Game):
         self.healthBar   = self.assets.healthBar
         width = self.healthBar.get_width()
         self.helthBars = [ GameObject(self.healthBar, self.FirstBarPos[0] + i*width, self.FirstBarPos[1] ) for i in range(0,8) ]
-    def onControl(self):
-        char = self.character
-        if self.right_pressed and (char.x < (self.size[0]-char.asset.get_width())):
-            char.x += self.move_dis
-        
-        if self.left_pressed and (char.x > 0):
-            char.x -= self.move_dis
 
-        if self.space_pressed :
-            if self.bulet_produse == self.bullet_probuse_delay :
-                self.bullets.append( Bullet(self.assets.bullet, self.character.x + self.character.asset.get_width()/2, self.init_bullet_pos_y, 6, self.assets.bullet_expl ) )
-                self.bullets_col.append( 0 )
-                self.bulet_produse = 0
-        if self.bulet_produse != self.bullet_probuse_delay:
-           self.bulet_produse += 1
-        
-        pop_bullet = False
-        for i in range( len(self.bullets) ):
-            bullet = self.bullets[i]
-            if self.bullets_col[i] == 0 :
-                bullet.move_forword()
-            if bullet.y < 0 or self.bullets_col[i] >= 6:
-                pop_bullet = True
-        if pop_bullet :
-            self.bullets.pop(0)
-            self.bullets_col.pop(0)
-            print("delete buulet")
-        for enemy in self.enemes:
-            self.controlColitionPerEnemy(enemy)
+        self.isGameOver  = False
+        self.gameOver = endGame( self.screen, self.size, self.clock )
+
+    def onControl(self):
+        if self.isGameOver :
+            self.gameOver.onControl()
+        else :
+            char = self.character
+            if self.right_pressed and (char.x < (self.size[0]-char.asset.get_width())):
+                char.x += self.move_dis
+            
+            if self.left_pressed and (char.x > 0):
+                char.x -= self.move_dis
+
+            if self.space_pressed :
+                if self.bulet_produse == self.bullet_probuse_delay :
+                    self.bullets.append( Bullet(self.assets.bullet, self.character.x + self.character.asset.get_width()/2, self.init_bullet_pos_y, 6, self.assets.bullet_expl ) )
+                    self.bullets_col.append( 0 )
+                    self.bulet_produse = 0
+            if self.bulet_produse != self.bullet_probuse_delay:
+                self.bulet_produse += 1
+            
+            pop_bullet = False
+            for i in range( len(self.bullets) ):
+                bullet = self.bullets[i]
+                if self.bullets_col[i] == 0 :
+                    bullet.move_forword()
+                if bullet.y < 0 or self.bullets_col[i] >= 6:
+                    pop_bullet = True
+            if pop_bullet :
+                self.bullets.pop(0)
+                self.bullets_col.pop(0)
+                print("delete buulet")
+            for enemy in self.enemes:
+                self.controlColitionPerEnemy(enemy)
+            
+            if len( self.helthBars ) == 0 :
+                self.isGameOver = True
 
     def controlColitionPerEnemy(self, enemy):
         for i in range(len(self.bullets)):
@@ -141,20 +148,24 @@ class SpaceShooter(Game):
                 if self.bullets_col[i] == 1:
                     self.bullets[i].x -= (self.bullets[i].asset_colition.get_width()/2) + (self.bullets[i].asset.get_width()/2)
                     self.bullets[i].y -= (self.bullets[i].asset_colition.get_height())
-                    self.helthBars.pop()
+                    if len(self.helthBars) > 0:
+                        self.helthBars.pop()
 
     
     def onDraw(self):
         super().onDraw()
-        self.screen.blit( self.assets.background,(0,0) )
-        self.screen.blit( self.character.asset, self.character.position() )
-        for enemy in self.enemes :
-            self.screen.blit( enemy.asset, enemy.position() )
-        for i in range( len(self.bullets )):
-            bullet = self.bullets[i]
-            self.screen.blit( bullet.get_asset( self.bullets_col[i] ), bullet.position() )
-        
-        self.screen.blit(self.healthTable, self.helthPos)
-        for bar in self.helthBars : 
-            self.screen.blit( bar.asset, bar.position())
+        if self.isGameOver :
+            self.gameOver.onDraw()
+        else :
+            self.screen.blit( self.assets.background,(0,0) )
+            self.screen.blit( self.character.asset, self.character.position() )
+            for enemy in self.enemes :
+                self.screen.blit( enemy.asset, enemy.position() )
+            for i in range( len(self.bullets )):
+                bullet = self.bullets[i]
+                self.screen.blit( bullet.get_asset( self.bullets_col[i] ), bullet.position() )
+            
+            self.screen.blit(self.healthTable, self.helthPos)
+            for bar in self.helthBars : 
+                self.screen.blit( bar.asset, bar.position())
         
