@@ -156,25 +156,33 @@ class SpaceShooter(Game):
                     if len(self.helthBars) > 0:
                         self.helthBars.pop()
     def onEvent(self):
-        if self.isGameOver :
-            self.end, self.restart = self.gameOver.onEvent()
+        if not self.is_start :
+            self.end, self.is_start = self.start.onEvent(self.is_start)
         else :
-            return super().onEvent()
+            if self.isGameOver :
+                self.end, self.restart = self.gameOver.onEvent()
+            else :
+                return super().onEvent()
+
     
     def onDraw(self):
         super().onDraw()
-        if self.isGameOver :
-            self.gameOver.onDraw()
-        else :
-            self.screen.blit( self.assets.background,(0,0) )
-            self.screen.blit( self.character.asset, self.character.position() )
-            for enemy in self.enemes :
-                self.screen.blit( enemy.asset, enemy.position() )
-            for i in range( len(self.bullets )):
-                bullet = self.bullets[i]
-                self.screen.blit( bullet.get_asset( self.bullets_col[i] ), bullet.position() )
-            
-            self.screen.blit(self.healthTable, self.helthPos)
-            for bar in self.helthBars : 
-                self.screen.blit( bar.asset, bar.position())
+        if not self.is_start :
+            self.start.onDraw()
+        else:
+            print(self.is_start)
+            if self.isGameOver :
+                self.gameOver.onDraw()
+            else :
+                self.screen.blit( self.assets.background,(0,0) )
+                self.screen.blit( self.character.asset, self.character.position() )
+                for enemy in self.enemes :
+                    self.screen.blit( enemy.asset, enemy.position() )
+                for i in range( len(self.bullets )):
+                    bullet = self.bullets[i]
+                    self.screen.blit( bullet.get_asset( self.bullets_col[i] ), bullet.position() )
+                
+                self.screen.blit(self.healthTable, self.helthPos)
+                for bar in self.helthBars : 
+                    self.screen.blit( bar.asset, bar.position())
         

@@ -1,4 +1,5 @@
 import pygame
+from startGame import *
 
 # basic class
 class GameWindow :
@@ -37,7 +38,8 @@ class Game(GameWindow):
         self.right_pressed = False
         self.left_pressed = False
         self.space_pressed = False
-
+        self.start = startGame( self.screen, dim, self.clock )
+        self.is_start = False
     def onEvent(self):
         super().onEvent()
         keys = pygame.key.get_pressed()

@@ -9,7 +9,9 @@ class EndGameAssets :
         self.score       = self.loadImageAsset("endgame\Score.png")
         self.record      = self.loadImageAsset("endgame\Record.png")
         self.close       = self.loadImageAsset("endgame\Close_BTN.png")
+        self.close_act   = self.loadImageAsset("endgame\Close_BTN2.png")
         self.replay      = self.loadImageAsset("endgame\Replay_BTN.png")
+        self.replay_act  = self.loadImageAsset("endgame\Replay_BTN2.png")
     def loadImageAsset(self, name):
         return pygame.image.load(f"assets\{name}")
 
@@ -23,12 +25,22 @@ class endGame :
         self.count  = 0
         self.exit_pos = (self.lose_x, 13*self.lose_y)
         self.replay_pos = (self.lose_x + self.assets.close.get_width() + 5, 13*self.lose_y)
+        self.on_replay   = False
+        self.on_close    = False
     def onEvent( self ):
         end = False
         restart = False
         for event in pygame.event.get():
+            self.on_replay   = False
+            self.on_close    = False
             if event.type == pygame.QUIT:
                 end = True
+            x, y = pygame.mouse.get_pos()
+            print(f'Mouse clicked at {x}, {y}')
+            if is_point_inside_box( [x,y], self.exit_pos, self.assets.close.get_width(), self.assets.close.get_height() ) :
+                self.on_close = True
+            if is_point_inside_box( [x,y], self.replay_pos, self.assets.replay.get_width(), self.assets.replay.get_height() ) :
+                self.on_replay = True
             if event.type == pygame.MOUSEBUTTONDOWN :
                 x, y = pygame.mouse.get_pos()
                 print(f'Mouse clicked at {x}, {y}')
@@ -49,7 +61,14 @@ class endGame :
             self.screen.blit( self.assets.lose,(self.lose_x, self.lose_y) )
             self.screen.blit( self.assets.score,(self.lose_x, 5*self.lose_y) )
             self.screen.blit( self.assets.record,(self.lose_x, 9*self.lose_y) )
-        self.screen.blit( self.assets.close,self.exit_pos )
-        self.screen.blit( self.assets.replay, self.replay_pos)
+        if self.on_close :
+            self.screen.blit( self.assets.close_act,self.exit_pos )
+        else :
+            self.screen.blit( self.assets.close,self.exit_pos )
+
+        if self.on_replay :
+            self.screen.blit( self.assets.replay_act, self.replay_pos)
+        else :
+            self.screen.blit( self.assets.replay, self.replay_pos)
  
         
