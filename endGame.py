@@ -1,5 +1,6 @@
 import pygame
 from algos import *
+from states import *
 
 class EndGameAssets :
     def __init__(self, win_size):
@@ -16,9 +17,9 @@ class EndGameAssets :
         return pygame.image.load(f"assets\{name}")
 
 class endGame :
-    def __init__(self, screen, win_size,  clock):
-        self.screen = screen
+    def __init__(self, screen, win_size,  clock, state, control):
         self.clock  = clock
+        self.win_size = win_size
         self.assets = EndGameAssets(win_size)
         self.lose_x = (win_size[0]/2) - (self.assets.lose.get_width()/2)
         self.lose_y = (win_size[1]/20)
@@ -27,28 +28,25 @@ class endGame :
         self.replay_pos = (self.lose_x + self.assets.close.get_width() + 5, 13*self.lose_y)
         self.on_replay   = False
         self.on_close    = False
+        self.gameState   = state
+        self.controlState = control
+        self.screen = screen
+
     def onEvent( self ):
-        end = False
-        restart = False
-        for event in pygame.event.get():
-            self.on_replay   = False
-            self.on_close    = False
-            if event.type == pygame.QUIT:
-                end = True
-            x, y = pygame.mouse.get_pos()
-            print(f'Mouse clicked at {x}, {y}')
+        x, y = self.controlState.mouse_pos
+        self.on_close  = False
+        self.on_replay = False
+        if is_point_inside_box( [x,y], self.exit_pos, self.assets.close.get_width(), self.assets.close.get_height() ) :
+            self.on_close = True
+        if is_point_inside_box( [x,y], self.replay_pos, self.assets.replay.get_width(), self.assets.replay.get_height() ) :
+            self.on_replay = True
+        if self.controlState.mouse_down :
             if is_point_inside_box( [x,y], self.exit_pos, self.assets.close.get_width(), self.assets.close.get_height() ) :
-                self.on_close = True
+                self.gameState.set_exit()
             if is_point_inside_box( [x,y], self.replay_pos, self.assets.replay.get_width(), self.assets.replay.get_height() ) :
-                self.on_replay = True
-            if event.type == pygame.MOUSEBUTTONDOWN :
-                x, y = pygame.mouse.get_pos()
-                print(f'Mouse clicked at {x}, {y}')
-                if is_point_inside_box( [x,y], self.exit_pos, self.assets.close.get_width(), self.assets.close.get_height() ) :
-                    end = True
-                if is_point_inside_box( [x,y], self.replay_pos, self.assets.replay.get_width(), self.assets.replay.get_height() ) :
-                    restart = True
-        return end, restart
+                print("start the game")
+                self.gameState.set_start_game()
+        return self.gameState, self.controlState
     
     def onControl(self):
         self.count += 1

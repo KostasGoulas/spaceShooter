@@ -1,5 +1,5 @@
 import pygame
-from startGame import *
+from gameManager import *
 
 # basic class
 class GameWindow :
@@ -35,27 +35,30 @@ class GameWindow :
 class Game(GameWindow):
     def __init__(self, dim, title):
         super().__init__(dim, title)
+        self.manager = gameManager( self.screen, dim, self.clock, title )
         self.right_pressed = False
         self.left_pressed = False
         self.space_pressed = False
-        self.start = startGame( self.screen, dim, self.clock )
-        self.is_start = False
     def onEvent(self):
         super().onEvent()
+        self.end = self.manager.gameState.exit
+        self.manager.controlState.reset()
         keys = pygame.key.get_pressed()
+        x, y = pygame.mouse.get_pos()
+        self.manager.controlState.mouse_pos = (x,y)
+        if pygame.mouse.get_pressed()[0] :
+            print("click")
+            self.manager.controlState.mouse_down = True
         if keys[pygame.K_RIGHT] :
-            self.right_pressed = True
+            self.manager.controlState.set_right()
             print("Right pressed")
-        else:
-            self.right_pressed = False
         if keys[pygame.K_LEFT] :
-            self.left_pressed = True
+            self.manager.controlState.set_left()
             print("Left pressed")
-        else :
-            self.left_pressed = False
         if keys[pygame.K_SPACE] : 
-            self.space_pressed = True
+            self.manager.controlState.set_space()
             print("Space Pressed")
-        else :
-            self.space_pressed = False
+    def onDraw(self):
+        if not self.manager.gameState.exit :
+            super().onDraw()
         
