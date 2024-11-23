@@ -94,6 +94,7 @@ class LevelEnemies:
         self.players_pos = char_pos
         self.enemy_assets = enemy_assets
         self.enemes  = []
+        self.dead_enemies = []
         # self.createEnemy(enemy_assets[2], (char_pos[0], 140+self.enemy_assets[2].get_height()) )
         self.fillLevelWithEnemy()
     
@@ -109,12 +110,28 @@ class LevelEnemies:
         enemy[1] -= 1
     
     def cleanUpEnemies(self):
+        dead_enemies_new = []
+        for enemy in self.dead_enemies :
+            if enemy[1] <= -6 :
+                continue;
+            dead_enemies_new.append(enemy)
+        
+        self.dead_enemies = dead_enemies_new
+        
         enemies_new = []
         for enemy in self.enemes :
             if enemy[1] <= 0 :
+                self.dead_enemies.append(enemy)
                 continue;
             enemies_new.append(enemy)
         self.enemes = enemies_new
+
+    def onDraw( self, screen ):
+        for enemy in self.enemes :
+            screen.blit( enemy[0].asset, enemy[0].position() )
+        for enemy in self.dead_enemies :
+            enemy[1] -= 1
+            screen.blit( enemy[0].asset, enemy[0].position() )
 
 
 class Level_1 :
@@ -168,9 +185,10 @@ class Level_1 :
         for enemy in self.Enemies.enemes:
             if self.Bullets.controlColitionPerEnemy(enemy[0]) :
                 self.Enemies.enemyHited(enemy)
-                self.Enemies.cleanUpEnemies()
+                
+        self.Enemies.cleanUpEnemies()
         
-        if len(self.Enemies.enemes) == 0:
+        if len(self.Enemies.enemes) == 0 and len(self.Enemies.dead_enemies) == 0:
             self.gameState.set_end_game()
             
         # self.helthBars.pop()
@@ -184,9 +202,8 @@ class Level_1 :
     def onDraw(self):
         self.screen.blit( self.assets.background,(0,0) )
         self.screen.blit( self.character.asset, self.character.position() )
-        for enemy in self.Enemies.enemes :
-            self.screen.blit( enemy[0].asset, enemy[0].position() )
-        
+
+        self.Enemies.onDraw(self.screen)
         self.Bullets.onDraw(self.screen)
         
         self.screen.blit(self.healthTable, self.helthPos)
