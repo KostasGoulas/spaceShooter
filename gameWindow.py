@@ -40,7 +40,6 @@ class Game(GameWindow):
         self.left_pressed = False
         self.space_pressed = False
     def onEvent(self):
-        super().onEvent()
         self.end = self.manager.gameState.exit
         self.manager.controlState.reset()
         keys = pygame.key.get_pressed()
@@ -58,6 +57,7 @@ class Game(GameWindow):
         if keys[pygame.K_SPACE] : 
             self.manager.controlState.set_space()
             print("Space Pressed")
+        super().onEvent()
     def onDraw(self):
         if not self.manager.gameState.exit :
             super().onDraw()
