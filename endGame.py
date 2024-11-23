@@ -57,8 +57,8 @@ class endGame :
         self.screen.blit( self.assets.background,(0,0) )
         if self.count < 7:
             self.screen.blit( self.assets.lose,(self.lose_x, self.lose_y) )
-            self.screen.blit( self.assets.score,(self.lose_x, 5*self.lose_y) )
-            self.screen.blit( self.assets.record,(self.lose_x, 9*self.lose_y) )
+            # self.screen.blit( self.assets.score,(self.lose_x, 5*self.lose_y) )
+            # self.screen.blit( self.assets.record,(self.lose_x, 9*self.lose_y) )
         if self.on_close :
             self.screen.blit( self.assets.close_act,self.exit_pos )
         else :
