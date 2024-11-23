@@ -13,8 +13,11 @@ class Score:
     def updateHightScore(self):
         if self.score > self.HightScore :
             self.HightScore = self.score
+    def writeToDataBase(self):
+        pass
+    def readFromDataBase(self):
+        pass
     def onDraw(self):
-        
         self.updateHightScore()
         score = self.score
         hightscore = self.HightScore

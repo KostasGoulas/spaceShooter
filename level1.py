@@ -240,6 +240,7 @@ class Level_1 :
         self.helthPos = (15,15)
         self.FirstBarPos = (15+3, 15+3)
         self.healthTable = self.assets.healthTable
+        self.HealthTableObject = GameObject( self.healthTable, self.helthPos[0], self.helthPos[1] )
         self.healthBar   = self.assets.healthBar
         self.health_bar_width = self.healthBar.get_width()
         self.helthBars = [ GameObject(self.healthBar, self.FirstBarPos[0] + i*self.health_bar_width, self.FirstBarPos[1] ) for i in range(0,8) ]
@@ -271,6 +272,9 @@ class Level_1 :
         for enemy in self.Enemies.enemes:
             if self.Bullets.controlColitionPerEnemy(enemy[0]) :
                 self.Enemies.enemyHited(enemy)
+        
+        if self.Bullets.controlColitionPerEnemy(self.HealthTableObject) :
+            self.helthBars.pop()
                 
         self.Enemies.cleanUpEnemies()
         
@@ -292,8 +296,7 @@ class Level_1 :
         self.screen.blit( self.character.asset, self.character.position() )
 
         self.Enemies.onDraw(self.screen)
-        self.Bullets.onDraw(self.screen)
-        
         self.screen.blit(self.healthTable, self.helthPos)
+        self.Bullets.onDraw(self.screen)
         for bar in self.helthBars : 
             self.screen.blit( bar.asset, bar.position())
