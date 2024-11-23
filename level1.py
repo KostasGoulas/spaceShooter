@@ -61,12 +61,23 @@ class LevelBullets:
             bullet = self.bullets[i]
             if self.bullets_col[i] == 0 :
                 bullet.move_forword()
-            if bullet.y < 0 or self.bullets_col[i] >= 6:
+            if bullet.y < 0 :
                 pop_bullet = True
         if pop_bullet :
             self.bullets.pop(0)
             self.bullets_col.pop(0)
             print("delete buulet")
+
+        bullets_new = []
+        bullet_col_new = []
+        for i in range( len(self.bullets) ):
+            bullet = self.bullets[i]
+            if self.bullets_col[i] >= 6:
+                continue;
+            bullets_new.append(bullet)
+            bullet_col_new.append(self.bullets_col[i])
+        self.bullets = bullets_new
+        self.bullets_col = bullet_col_new
 
     def controlColitionPerEnemy(self, enemy):
         return_val = False
@@ -119,7 +130,7 @@ class EnemiesHealth:
     def onDraw(self, screen, pos):
         # screen.blit( self.table, pos )
         for i in range(self.health) :
-            screen.blit( self.plus_pos[i][0], (pos[0] + 5 + self.plus_pos[i][1], pos[1] + 5 ) )
+            screen.blit( self.plus_pos[i][0], ( pos[0] + 5 + self.plus_pos[i][1], pos[1] + 5 ) )
 
 class LevelEnemies:
     def __init__(self, char_pos, enemy_assets, health_assets):
