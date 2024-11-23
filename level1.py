@@ -297,6 +297,6 @@ class Level_1 :
 
         self.Enemies.onDraw(self.screen)
         self.screen.blit(self.healthTable, self.helthPos)
-        self.Bullets.onDraw(self.screen)
         for bar in self.helthBars : 
             self.screen.blit( bar.asset, bar.position())
+        self.Bullets.onDraw(self.screen)

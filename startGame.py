@@ -10,6 +10,7 @@ class StartGameAssets :
         self.startBtn_act = self.loadImageAsset("startgame\Bonus_BTN_02.png")
     def loadImageAsset(self, name):
         return pygame.image.load(f"assets\{name}")
+
 class startGame :
     def __init__(self, screen, win_size,  clock, state, control):
         self.screen = screen
@@ -21,6 +22,7 @@ class startGame :
         self.onStart = False
         self.gameState    = state
         self.controlState = control
+        self.font = pygame.font.Font(pygame.font.get_default_font(), 50)
     def onEvent( self ):
         end = False
         self.onStart = False
@@ -42,5 +44,9 @@ class startGame :
         self.screen.blit( self.assets.background,(0,0) )
         if self.onStart :
             self.screen.blit( self.assets.startBtn_act, (self.str_x-8, self.str_y-2))
+            text_surface = self.font.render("START", True, (255, 200, 200, 250))
         else:
             self.screen.blit( self.assets.startBtn, (self.str_x, self.str_y))
+            text_surface = self.font.render("START", True, (100, 100, 100, 50))
+        self.screen.blit(text_surface, (self.str_x+20, self.str_y+80 ))
+
