@@ -23,6 +23,14 @@ class GameAssets :
         self.healthBar   = self.loadImageAsset("health\Health_Dot.png")
         # self.healthBar   = pygame.transform.scale(self.healthBar, (self.healthBar.get_width()/2, self.healthBar.get_height()/2))
         self.healthBar   = pygame.transform.scale(self.healthBar, (21, self.healthBar.get_height()/2))
+        self.enemy_helth_table = self.loadImageAsset("enemy\Boss_HP_Table.png")
+        self.enemy_helth_table = pygame.transform.scale(self.enemy_helth_table, (self.enemy_helth_table.get_width()/16, self.enemy_helth_table.get_height()/3))
+        self.enemy_health_bar1 = self.loadImageAsset("enemy\Boss_HP_Bar_1.png")
+        self.enemy_health_bar1 = pygame.transform.scale(self.enemy_health_bar1, (self.enemy_health_bar1.get_width()/(4), self.enemy_health_bar1.get_height()/3))
+        self.enemy_health_bar2 = self.loadImageAsset("enemy\Boss_HP_Bar_2.png")
+        self.enemy_health_bar2 = pygame.transform.scale(self.enemy_health_bar2, (self.enemy_health_bar1.get_width(), self.enemy_health_bar2.get_height()/3))
+        self.enemy_health_bar3 = self.loadImageAsset("enemy\Boss_HP_Bar_3.png")
+        self.enemy_health_bar3 = pygame.transform.scale(self.enemy_health_bar3, (self.enemy_health_bar1.get_width(), self.enemy_health_bar3.get_height()/3))
     def loadImageAsset(self, name):
         return pygame.image.load(f"assets\{name}")
     
@@ -89,10 +97,35 @@ class LevelBullets:
             bullet = self.bullets[i]
             screen.blit( bullet.get_asset( self.bullets_col[i] ), bullet.position() )
 
+class EnemiesHealth:
+    def __init__(self, assets, max_health = 4):
+        self.table = assets[0]
+        self.bar1  = assets[1]
+        self.bar2  = assets[2]
+        self.bar3  = assets[3]
+        
+        self.plus_pos = [ 
+            [self.bar1, 0 ],
+            [self.bar2, self.bar1.get_width() ],
+            [self.bar2, self.bar1.get_width() + self.bar2.get_width() ],
+            [self.bar3, self.bar1.get_width() + self.bar2.get_width() + self.bar3.get_width() ] 
+            ]
+
+        self.health = max_health
+
+    def reduseHealth(self):
+        self.health -= 1
+
+    def onDraw(self, screen, pos):
+        # screen.blit( self.table, pos )
+        for i in range(self.health) :
+            screen.blit( self.plus_pos[i][0], (pos[0] + 5 + self.plus_pos[i][1], pos[1] + 5 ) )
+
 class LevelEnemies:
-    def __init__(self, char_pos, enemy_assets):
+    def __init__(self, char_pos, enemy_assets, health_assets):
         self.players_pos = char_pos
         self.enemy_assets = enemy_assets
+        self.health_assets = health_assets
         self.enemes  = []
         self.dead_enemies = []
         # self.createEnemy(enemy_assets[2], (char_pos[0], 140+self.enemy_assets[2].get_height()) )
@@ -101,18 +134,18 @@ class LevelEnemies:
     def fillLevelWithEnemy(self):
         pos_ref = (self.players_pos[0] - 150, 140+self.enemy_assets[2].get_height())
         for i in range(4):
-            self.createEnemy( self.enemy_assets[i] , (pos_ref[0] + i*100, pos_ref[1]), 4 )
+            self.createEnemy( self.enemy_assets[i] , (pos_ref[0] + i*100, pos_ref[1]), EnemiesHealth(self.health_assets, 4) )
 
     def createEnemy(self, asset, pos, health ):
         self.enemes.append( [GameObject(asset, pos[0], pos[1]), health] )
 
     def enemyHited( self, enemy ):
-        enemy[1] -= 1
+        enemy[1].health -= 1
     
     def cleanUpEnemies(self):
         dead_enemies_new = []
         for enemy in self.dead_enemies :
-            if enemy[1] <= -6 :
+            if enemy[1].health <= -6 :
                 continue;
             dead_enemies_new.append(enemy)
         
@@ -120,7 +153,7 @@ class LevelEnemies:
         
         enemies_new = []
         for enemy in self.enemes :
-            if enemy[1] <= 0 :
+            if enemy[1].health <= 0 :
                 self.dead_enemies.append(enemy)
                 continue;
             enemies_new.append(enemy)
@@ -129,8 +162,9 @@ class LevelEnemies:
     def onDraw( self, screen ):
         for enemy in self.enemes :
             screen.blit( enemy[0].asset, enemy[0].position() )
+            enemy[1].onDraw(screen, [enemy[0].position()[0], enemy[0].position()[1] - 10] )
         for enemy in self.dead_enemies :
-            enemy[1] -= 1
+            enemy[1].health -= 1
             screen.blit( enemy[0].asset, enemy[0].position() )
 
 
@@ -150,7 +184,7 @@ class Level_1 :
         self.Bullets = LevelBullets( (self.character.x + self.character.asset.get_width()/2, self.init_bullet_pos_y), self.assets.bullet, self.assets.bullet_expl )
 
         #enemys
-        self.Enemies = LevelEnemies((char_x, char_y), self.assets.enemys)
+        self.Enemies = LevelEnemies((char_x, char_y), self.assets.enemys, [self.assets.enemy_helth_table, self.assets.enemy_health_bar1, self.assets.enemy_health_bar2, self.assets.enemy_health_bar3])
         # self.enemes  = [ GameObject(self.assets.enemys[2], char_x, 140+self.assets.enemys[2].get_height()) ]
 
         # HEALTH:
