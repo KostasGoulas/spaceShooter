@@ -41,9 +41,9 @@ class LevelBullets:
         self.bullets = []
         self.bullets_col = []
 
-    def addBullet(self):
+    def addBullet(self, pos):
         if self.bulet_produse == self.bullet_produse_delay :
-            self.bullets.append( Bullet(self.asset, self.init_pos[0], self.init_pos[1], self.speed, self.asset2) )
+            self.bullets.append( Bullet(self.asset, pos[0], pos[1], self.speed, self.asset2) )
             self.bullets_col.append(0)
             self.bulet_produse = 0
     
@@ -78,9 +78,9 @@ class LevelBullets:
                     return_val = True
         return return_val
 
-    def onControl(self, event):
+    def onControl(self, event, pos):
         if event :
-            self.addBullet()
+            self.addBullet(pos)
         if self.bulet_produse != self.bullet_produse_delay:
             self.bulet_produse += 1
         self.popBullet()
@@ -88,6 +88,34 @@ class LevelBullets:
         for i in range( len(self.bullets )):
             bullet = self.bullets[i]
             screen.blit( bullet.get_asset( self.bullets_col[i] ), bullet.position() )
+
+class LevelEnemies:
+    def __init__(self, char_pos, enemy_assets):
+        self.players_pos = char_pos
+        self.enemy_assets = enemy_assets
+        self.enemes  = []
+        # self.createEnemy(enemy_assets[2], (char_pos[0], 140+self.enemy_assets[2].get_height()) )
+        self.fillLevelWithEnemy()
+    
+    def fillLevelWithEnemy(self):
+        pos_ref = (self.players_pos[0] - 150, 140+self.enemy_assets[2].get_height())
+        for i in range(4):
+            self.createEnemy( self.enemy_assets[i] , (pos_ref[0] + i*100, pos_ref[1]), 4 )
+
+    def createEnemy(self, asset, pos, health ):
+        self.enemes.append( [GameObject(asset, pos[0], pos[1]), health] )
+
+    def enemyHited( self, enemy ):
+        enemy[1] -= 1
+    
+    def cleanUpEnemies(self):
+        enemies_new = []
+        for enemy in self.enemes :
+            if enemy[1] <= 0 :
+                continue;
+            enemies_new.append(enemy)
+        self.enemes = enemies_new
+
 
 class Level_1 :
     def __init__(self, screen, dim, clock, title, state, control ):
@@ -103,7 +131,10 @@ class Level_1 :
         #bullets
         self.init_bullet_pos_y =  char_y-self.assets.bullet.get_height()
         self.Bullets = LevelBullets( (self.character.x + self.character.asset.get_width()/2, self.init_bullet_pos_y), self.assets.bullet, self.assets.bullet_expl )
-        self.enemes  = [ GameObject(self.assets.enemys[2], char_x, 140+self.assets.enemys[2].get_height()) ]
+
+        #enemys
+        self.Enemies = LevelEnemies((char_x, char_y), self.assets.enemys)
+        # self.enemes  = [ GameObject(self.assets.enemys[2], char_x, 140+self.assets.enemys[2].get_height()) ]
 
         # HEALTH:
         self.helthPos = (15,15)
@@ -120,6 +151,8 @@ class Level_1 :
     def Reset(self):
         self.helthBars = [ GameObject(self.healthBar, self.FirstBarPos[0] + i*self.health_bar_width, self.FirstBarPos[1] ) for i in range(0,8) ]
         self.Bullets.onReset()
+        self.Enemies.enemes.clear()
+        self.Enemies.fillLevelWithEnemy()
 
     def onControl(self):
         char = self.character
@@ -129,11 +162,18 @@ class Level_1 :
         if self.controlState.left and (char.x > 0):
             char.x -= self.move_dis
 
-        self.Bullets.onControl(self.controlState.space)
+        self.Bullets.onControl(self.controlState.space, [char.x + char.asset.get_width()/2, char.y] )
 
-        for enemy in self.enemes:
-            if self.Bullets.controlColitionPerEnemy(enemy) :
-                self.helthBars.pop()
+
+        for enemy in self.Enemies.enemes:
+            if self.Bullets.controlColitionPerEnemy(enemy[0]) :
+                self.Enemies.enemyHited(enemy)
+                self.Enemies.cleanUpEnemies()
+        
+        if len(self.Enemies.enemes) == 0:
+            self.gameState.set_end_game()
+            
+        # self.helthBars.pop()
         
         if len( self.helthBars ) == 0 :
             self.gameState.set_end_game()
@@ -141,12 +181,11 @@ class Level_1 :
     def onEvent(self):
         return self.gameState, self.controlState;
 
-    
     def onDraw(self):
         self.screen.blit( self.assets.background,(0,0) )
         self.screen.blit( self.character.asset, self.character.position() )
-        for enemy in self.enemes :
-            self.screen.blit( enemy.asset, enemy.position() )
+        for enemy in self.Enemies.enemes :
+            self.screen.blit( enemy[0].asset, enemy[0].position() )
         
         self.Bullets.onDraw(self.screen)
         
