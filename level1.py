@@ -33,6 +33,43 @@ class GameAssets :
         self.enemy_health_bar3 = pygame.transform.scale(self.enemy_health_bar3, (self.enemy_health_bar1.get_width(), self.enemy_health_bar3.get_height()/3))
     def loadImageAsset(self, name):
         return pygame.image.load(f"assets\{name}")
+
+class Player( GameObject ):
+    def __init__(self, asset, x, y, health_bars):
+        super().__init__(asset, x, y)
+        self.max_health_bars = health_bars
+        self.time = 0
+        self.health_bars = health_bars
+        self.bullets = 0
+        self.move_dis = asset.get_width()/4
+
+    def ResetStats(self):
+        self.time = 0
+        self.health_bars = self.max_health_bars
+        self.bullets = 0
+
+
+    def add_bullet(self):
+        self.bullets += 1
+
+    def add_time(self):
+        self.time += 1
+
+    def lose_life_bar(self):
+        if self.health_bars > 0:
+            self.health_bars -= 1
+
+    def move_left(self):
+        self.update(-self.move_dis)
+
+    def move_right(self):
+        self.update(self.move_dis)
+
+    def get_score(self):
+        if self.health_bars == 0 or self.bullets == 0 or self.time == 0:
+            return 0
+        return 1000 * self.health_bars / ((self.bullets *0.8) + (self.time*0.2))
+
     
 class LevelBullets:
     def __init__(self, init_pos, asset, asset2, speed = 6):
@@ -188,7 +225,8 @@ class Level_1 :
         char_y  = dim[1] - dim[1]/20 - char.get_height()
         self.move_dis = char.get_width()/4 
 
-        self.character = GameObject(char, char_x, char_y)
+        # self.character = GameObject(char, char_x, char_y)
+        self.character = Player(char, char_x, char_y, 8)
 
         #bullets
         self.init_bullet_pos_y =  char_y-self.assets.bullet.get_height()
@@ -215,6 +253,7 @@ class Level_1 :
         self.Bullets.onReset()
         self.Enemies.enemes.clear()
         self.Enemies.fillLevelWithEnemy()
+        self.character.ResetStats()
 
     def onControl(self):
         char = self.character
@@ -225,6 +264,8 @@ class Level_1 :
             char.x -= self.move_dis
 
         self.Bullets.onControl(self.controlState.space, [char.x + char.asset.get_width()/2, char.y] )
+        if self.controlState.space :
+            self.character.add_bullet()
 
 
         for enemy in self.Enemies.enemes:
@@ -234,6 +275,7 @@ class Level_1 :
         self.Enemies.cleanUpEnemies()
         
         if len(self.Enemies.enemes) == 0 and len(self.Enemies.dead_enemies) == 0:
+            print( self.character.get_score() )
             self.gameState.set_end_game()
             
         # self.helthBars.pop()
@@ -242,6 +284,7 @@ class Level_1 :
             self.gameState.set_end_game()
 
     def onEvent(self):
+        self.character.add_time()
         return self.gameState, self.controlState;
 
     def onDraw(self):
