@@ -84,7 +84,7 @@ class LevelBullets:
         self.init_pos             = init_pos #(self.character.x + self.character.asset.get_width()/2, self.init_bullet_pos_y)
         self.asset                = asset
         self.asset2               = asset2 # on colition
-        self.speed                = 6
+        self.speed                = 10
     
     def onReset(self):
         self.bullets = []
@@ -174,12 +174,16 @@ class EnemiesHealth:
             screen.blit( self.plus_pos[i][0], ( pos[0] + 5 + self.plus_pos[i][1], pos[1] + 5 ) )
 
 class LevelEnemies:
-    def __init__(self, char_pos, enemy_assets, health_assets):
+    def __init__(self, char_pos, enemy_assets, health_assets, screen):
+        self.screen = screen
         self.players_pos = char_pos
         self.enemy_assets = enemy_assets
         self.health_assets = health_assets
         self.enemes  = []
         self.dead_enemies = []
+        self.droping_enemies = []
+        self.dead_droping_enemies = []
+    
         # self.createEnemy(enemy_assets[2], (char_pos[0], 140+self.enemy_assets[2].get_height()) )
         self.fillLevelWithEnemy()
         self.count1 = 0
@@ -187,6 +191,8 @@ class LevelEnemies:
         self.inArray1 = np.linspace(-(2 * np.pi), 2 * np.pi, 80)
         self.inArray2 = np.linspace(-(2 * np.pi), 2 * np.pi, 160)
         self.prev_dx = 0
+        self.drop_v  = 24
+        self.drop_g  = 1.1
     
     def fillLevelWithEnemy(self):
         pos_ref = (self.players_pos[0] - 250, 140+self.enemy_assets[2].get_height())
@@ -202,13 +208,28 @@ class LevelEnemies:
         enemy[1].health -= 1
     
     def cleanUpEnemies(self):
+        dead_dr_enemies_new = []
+        for enemy in self.dead_droping_enemies :
+            if enemy[1].health <= -12 :
+                continue;
+            dead_dr_enemies_new.append(enemy)
+        self.dead_droping_enemies = dead_dr_enemies_new
         dead_enemies_new = []
         for enemy in self.dead_enemies :
             if enemy[1].health <= -6 :
+                self.droping_enemies.append(enemy)
                 continue;
             dead_enemies_new.append(enemy)
-        
         self.dead_enemies = dead_enemies_new
+
+        drop_en = []
+        for enemy in self.droping_enemies:
+            if enemy[0].y > self.screen.get_height() + self.enemy_assets[0].get_height():
+                print("clean")
+                self.dead_droping_enemies.append(enemy)
+                continue
+            drop_en.append(enemy)
+        self.droping_enemies = drop_en
         
         enemies_new = []
         for enemy in self.enemes :
@@ -218,7 +239,8 @@ class LevelEnemies:
             enemies_new.append(enemy)
         self.enemes = enemies_new
     
-    def moveEnemies(self, x, dx, secreen_width):
+
+    def moveEnemies(self, x, dx, secreen_width, char_pos):
         y_cos = math.cos(self.inArray1[self.count1])
         x_sin = math.sin(self.inArray2[self.count2])
         for enemy in self.enemes:
@@ -238,11 +260,18 @@ class LevelEnemies:
         else :
             w = 0
             
-        print(w)
         if nearest != -1 :
             if self.enemes[ nearest ][0].x + (w*dx/2) > 0 and self.enemes[ nearest ][0].x + (w*dx/2) < secreen_width - self.enemy_assets[0].get_width():
                 self.enemes[nearest][0].update(w*dx/2, 0)
                 self.prev_dx = w*dx
+        
+        for enemy in self.droping_enemies:
+            du = dv(char_pos, enemy[0].position())
+            du = normalize(du)
+            enemy[0].update( du[0]*-10, du[1]*10+self.drop_v )
+
+        for enemy in self.dead_droping_enemies:
+            enemy[0].update( -1*w, self.drop_v )
 
 
     def onDraw( self, screen ):
@@ -254,6 +283,12 @@ class LevelEnemies:
             screen.blit( enemy[0].asset, enemy[0].position() )
             enemy[1].onDraw(screen, [enemy[0].position()[0], enemy[0].position()[1] - 10] )
         for enemy in self.dead_enemies :
+            enemy[1].health -= 1
+            screen.blit( enemy[0].asset, enemy[0].position() )
+        
+        for enemy in self.droping_enemies:
+            screen.blit( enemy[0].asset, enemy[0].position() )
+        for enemy in self.dead_droping_enemies :
             enemy[1].health -= 1
             screen.blit( enemy[0].asset, enemy[0].position() )
 
@@ -275,7 +310,7 @@ class Level_1 :
         self.Bullets = LevelBullets( (self.character.x + self.character.asset.get_width()/2, self.init_bullet_pos_y), self.assets.bullet, self.assets.bullet_expl )
 
         #enemys
-        self.Enemies = LevelEnemies((char_x, char_y), self.assets.enemys, [self.assets.enemy_helth_table, self.assets.enemy_health_bar1, self.assets.enemy_health_bar2, self.assets.enemy_health_bar3])
+        self.Enemies = LevelEnemies((char_x, char_y), self.assets.enemys, [self.assets.enemy_helth_table, self.assets.enemy_health_bar1, self.assets.enemy_health_bar2, self.assets.enemy_health_bar3], screen)
         # self.enemes  = [ GameObject(self.assets.enemys[2], char_x, 140+self.assets.enemys[2].get_height()) ]
 
         # HEALTH:
@@ -290,6 +325,9 @@ class Level_1 :
         self.screen = screen
         self.gameState = state
         self.controlState = control
+
+        self.collide_explor = [ False, self.character.position ]
+        self.ex_c = 0
 
     def Reset(self):
         self.helthBars = [ GameObject(self.healthBar, self.FirstBarPos[0] + i*self.health_bar_width, self.FirstBarPos[1] ) for i in range(0,8) ]
@@ -320,7 +358,17 @@ class Level_1 :
         
         if self.Bullets.controlColitionPerEnemy(self.HealthTableObject) :
             self.helthBars.pop()
-                
+            self.move_dis *= 0.8
+        
+        for enemy in self.Enemies.droping_enemies:
+            if enemy[0].collition(self.character) :
+                self.helthBars.pop()
+                self.helthBars.pop()
+                self.move_dis *= 0.8
+                enemy = self.Enemies.droping_enemies.pop()
+                self.Enemies.dead_droping_enemies.append(enemy)
+                self.collide_explor = [ True, (self.character.position()[0] , self.character.position()[1]) ]
+
         self.Enemies.cleanUpEnemies()
         
         if len(self.Enemies.enemes) == 0 and len(self.Enemies.dead_enemies) == 0:
@@ -328,7 +376,7 @@ class Level_1 :
             self.gameState.set_end_game()
             
         # self.helthBars.pop()
-        self.Enemies.moveEnemies(self.character.x, -1*dx, self.size[0])
+        self.Enemies.moveEnemies(self.character.x, -1*dx, self.size[0], self.character.position())
         
         if len( self.helthBars ) == 0 :
             self.gameState.set_end_game()
@@ -346,3 +394,12 @@ class Level_1 :
         for bar in self.helthBars : 
             self.screen.blit( bar.asset, bar.position())
         self.Bullets.onDraw(self.screen)
+        if self.collide_explor[0] and self.ex_c < 8 :
+            if self.ex_c % 2 :
+                self.screen.blit( self.assets.bullet_expl, (self.collide_explor[1][0]-2, self.collide_explor[1][1] ) )
+            else :
+                self.screen.blit( self.assets.bullet_expl, (self.collide_explor[1][0]+2, self.collide_explor[1][1] ) )
+            self.ex_c += 1
+        elif self.collide_explor[0] and self.ex_c >= 8 :
+            self.collide_explor[0] = False
+            self.ex_c = 0
