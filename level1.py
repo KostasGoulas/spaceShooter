@@ -1,5 +1,8 @@
 import pygame
 from gameObjects import *
+import math
+import numpy as np 
+import matplotlib.pyplot as plt  
 
 class GameAssets :
     def __init__(self, win_size):
@@ -178,6 +181,8 @@ class LevelEnemies:
         self.dead_enemies = []
         # self.createEnemy(enemy_assets[2], (char_pos[0], 140+self.enemy_assets[2].get_height()) )
         self.fillLevelWithEnemy()
+        self.count = 0
+        self.inArray = np.linspace(-(2 * np.pi), 2 * np.pi, 80)
     
     def fillLevelWithEnemy(self):
         pos_ref = (self.players_pos[0] - 150, 140+self.enemy_assets[2].get_height())
@@ -206,8 +211,15 @@ class LevelEnemies:
                 continue;
             enemies_new.append(enemy)
         self.enemes = enemies_new
+    
+    def moveEnemies(self):
+        y = math.cos(self.inArray[self.count])
+        for enemy in self.enemes:
+            enemy[0].update(0,10*y)
 
     def onDraw( self, screen ):
+        self.count += 1
+        self.count %= len(self.inArray)
         for enemy in self.enemes :
             screen.blit( enemy[0].asset, enemy[0].position() )
             enemy[1].onDraw(screen, [enemy[0].position()[0], enemy[0].position()[1] - 10] )
@@ -283,6 +295,7 @@ class Level_1 :
             self.gameState.set_end_game()
             
         # self.helthBars.pop()
+        self.Enemies.moveEnemies()
         
         if len( self.helthBars ) == 0 :
             self.gameState.set_end_game()
