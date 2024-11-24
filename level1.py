@@ -364,7 +364,7 @@ class Level_1 :
         for enemy in self.Enemies.droping_enemies:
             if enemy[0].collition(self.character) :
                 self.helthBars.pop()
-                if( len(self.health_bar_width) != 0 ):
+                if( len(self.helthBars) != 0 ):
                     self.helthBars.pop()
                 self.move_dis *= 0.8
                 enemy = self.Enemies.droping_enemies.pop()

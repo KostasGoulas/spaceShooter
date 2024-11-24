@@ -39,6 +39,8 @@ class Game(GameWindow):
         self.right_pressed = False
         self.left_pressed = False
         self.space_pressed = False
+        self.icon = pygame.image.load("assets\icon.svg")
+        pygame.display.set_icon(self.icon)
     def onEvent(self):
         self.end = self.manager.gameState.exit
         self.manager.controlState.reset()

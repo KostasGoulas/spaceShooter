@@ -89,7 +89,3 @@ class GamesDataBase :
         except Error as e:
             print(f"The error '{e}' occurred")
 
-# db = GamesDataBase()
-# db.insert("kos", 2.312)
-# tmp = db.update(1, "kostas", 3.1415)
-# print(tmp)
