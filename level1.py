@@ -3,6 +3,7 @@ from gameObjects import *
 import math
 import numpy as np 
 import matplotlib.pyplot as plt  
+from random import random
 
 class GameAssets :
     def __init__(self, win_size):
@@ -181,13 +182,18 @@ class LevelEnemies:
         self.dead_enemies = []
         # self.createEnemy(enemy_assets[2], (char_pos[0], 140+self.enemy_assets[2].get_height()) )
         self.fillLevelWithEnemy()
-        self.count = 0
-        self.inArray = np.linspace(-(2 * np.pi), 2 * np.pi, 80)
+        self.count1 = 0
+        self.count2 = 0
+        self.inArray1 = np.linspace(-(2 * np.pi), 2 * np.pi, 80)
+        self.inArray2 = np.linspace(-(2 * np.pi), 2 * np.pi, 160)
+        self.prev_dx = 0
     
     def fillLevelWithEnemy(self):
-        pos_ref = (self.players_pos[0] - 150, 140+self.enemy_assets[2].get_height())
+        pos_ref = (self.players_pos[0] - 250, 140+self.enemy_assets[2].get_height())
+        dif = 50
         for i in range(4):
-            self.createEnemy( self.enemy_assets[i] , (pos_ref[0] + i*100, pos_ref[1]), EnemiesHealth(self.health_assets, 4) )
+            self.createEnemy( self.enemy_assets[i] , (pos_ref[0] + i*160, dif + pos_ref[1]), EnemiesHealth(self.health_assets, 4)  )
+            dif *= -1
 
     def createEnemy(self, asset, pos, health ):
         self.enemes.append( [GameObject(asset, pos[0], pos[1]), health] )
@@ -212,14 +218,38 @@ class LevelEnemies:
             enemies_new.append(enemy)
         self.enemes = enemies_new
     
-    def moveEnemies(self):
-        y = math.cos(self.inArray[self.count])
+    def moveEnemies(self, x, dx, secreen_width):
+        y_cos = math.cos(self.inArray1[self.count1])
+        x_sin = math.sin(self.inArray2[self.count2])
         for enemy in self.enemes:
-            enemy[0].update(0,10*y)
+            enemy[0].update(2*x_sin,10*y_cos)
+        nearest = -1
+        min = 1e4 
+        for i in range(len(self.enemes)):
+            enemy = self.enemes[i]
+            if abs(enemy[0].x - x) < min :
+                min = abs(enemy[0].x - x)
+                nearest = i
+        
+        w = 0
+        r = random()
+        if r > 0.5 :
+            w = 0.5
+        else :
+            w = 0
+            
+        print(w)
+        if nearest != -1 :
+            if self.enemes[ nearest ][0].x + (w*dx/2) > 0 and self.enemes[ nearest ][0].x + (w*dx/2) < secreen_width - self.enemy_assets[0].get_width():
+                self.enemes[nearest][0].update(w*dx/2, 0)
+                self.prev_dx = w*dx
+
 
     def onDraw( self, screen ):
-        self.count += 1
-        self.count %= len(self.inArray)
+        self.count1 += 1
+        self.count1 %= len(self.inArray1)
+        self.count2 += 1
+        self.count2 %= len(self.inArray2)
         for enemy in self.enemes :
             screen.blit( enemy[0].asset, enemy[0].position() )
             enemy[1].onDraw(screen, [enemy[0].position()[0], enemy[0].position()[1] - 10] )
@@ -270,11 +300,14 @@ class Level_1 :
 
     def onControl(self):
         char = self.character
+        dx   = 0
         if self.controlState.right and (char.x < (self.size[0]-char.asset.get_width())):
             char.x += self.move_dis
+            dx = self.move_dis
         
         if self.controlState.left and (char.x > 0):
             char.x -= self.move_dis
+            dx = - self.move_dis
 
         self.Bullets.onControl(self.controlState.space, [char.x + char.asset.get_width()/2, char.y] )
         if self.controlState.space :
@@ -295,7 +328,7 @@ class Level_1 :
             self.gameState.set_end_game()
             
         # self.helthBars.pop()
-        self.Enemies.moveEnemies()
+        self.Enemies.moveEnemies(self.character.x, -1*dx, self.size[0])
         
         if len( self.helthBars ) == 0 :
             self.gameState.set_end_game()
