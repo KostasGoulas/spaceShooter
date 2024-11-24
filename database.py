@@ -17,6 +17,10 @@ class GamesDataBase :
         # Initialize the table
         self.__execute_query(initial_table)
     
+    def size(self):
+        table = self.readTable()
+        return len(table)
+
     def insert(self, name, score):
         insert = f"""
         INSERT INTO
@@ -24,16 +28,26 @@ class GamesDataBase :
         VALUES
         ( '{name}', '{score}');
         """
-        self.execute_query(insert)
+        self.__execute_query(insert)
     
     def readTable(self):
         table = "SELECT * from game"
         return self.__execute_read_query( table )
     
+    def readFirst(self):
+        table = self.readTable()
+        if len(table) == 0:
+            return []
+        return table[0]
+    
+    def read(self, id):
+        table = self.readTable()
+        if id <= len(table):
+            return table[id-1]
+        return []
+
     def update(self, id, name, score):
-        tmp_table = self.readTable()
-        if len(tmp_table) < id :
-            return len(tmp_table)
+        prev = self.read(id)
         update = f"""
         UPDATE
         game
@@ -44,7 +58,7 @@ class GamesDataBase :
         id = {id}
         """
         self.__execute_query(update)
-        return id
+        return prev
     
     # private :
     def __create_connection(self, path):
@@ -74,3 +88,8 @@ class GamesDataBase :
             return result
         except Error as e:
             print(f"The error '{e}' occurred")
+
+# db = GamesDataBase()
+# db.insert("kos", 2.312)
+# tmp = db.update(1, "kostas", 3.1415)
+# print(tmp)

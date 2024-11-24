@@ -335,6 +335,7 @@ class Level_1 :
         self.Enemies.enemes.clear()
         self.Enemies.fillLevelWithEnemy()
         self.character.ResetStats()
+        self.move_dis = self.character.asset.get_width()/4 
 
     def onControl(self):
         char = self.character
@@ -363,7 +364,8 @@ class Level_1 :
         for enemy in self.Enemies.droping_enemies:
             if enemy[0].collition(self.character) :
                 self.helthBars.pop()
-                self.helthBars.pop()
+                if( len(self.health_bar_width) != 0 ):
+                    self.helthBars.pop()
                 self.move_dis *= 0.8
                 enemy = self.Enemies.droping_enemies.pop()
                 self.Enemies.dead_droping_enemies.append(enemy)
