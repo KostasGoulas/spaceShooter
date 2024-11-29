@@ -1,0 +1,6 @@
+pygame
+math
+numpy
+matplotlib
+random
+sqlite3
