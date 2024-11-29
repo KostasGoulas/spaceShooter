@@ -9,6 +9,13 @@ from sound import *
 from states import *
 from window import *
 
+class newBulletControl(Control):
+    def execute(self, resiver):
+        resiver.shooted()
+
+class colitionControl(Control):
+    def execute(self, resiver):
+        resiver.hitted()
 class GameAssets :
     def __init__(self, win_size):
         self.simple_char = self.loadImageAsset("Missile_03.png");
@@ -89,6 +96,8 @@ class LevelBullets:
         self.asset                = asset
         self.asset2               = asset2 # on colition
         self.speed                = 10
+        self.Sound                = GameSounds()
+        self.controlColition      = colitionControl()
     
     def onReset(self):
         self.bullets = []
@@ -137,6 +146,7 @@ class LevelBullets:
                 else :
                     self.bullets[i].x -=1
                 if self.bullets_col[i] == 1:
+                    self.controlColition.execute(self.Sound)
                     self.bullets[i].x -= (self.bullets[i].asset_colition.get_width()/2) + (self.bullets[i].asset.get_width()/2)
                     self.bullets[i].y -= (self.bullets[i].asset_colition.get_height())
                     return_val = True
@@ -296,10 +306,6 @@ class LevelEnemies:
             win.screen.blit( enemy[0].asset, enemy[0].position() )
 
 
-class newBulletControl(Control):
-    def execute(self, resiver):
-        resiver.shooted()
-
 
 class Level_1 :
     def __init__(self ):
@@ -335,6 +341,7 @@ class Level_1 :
         self.ex_c = 0
 
         self.controlBullet = newBulletControl()
+        self.controlColition = colitionControl()
 
     def Reset(self):
         self.helthBars = [ GameObject(self.healthBar, self.FirstBarPos[0] + i*self.health_bar_width, self.FirstBarPos[1] ) for i in range(0,8) ]
@@ -409,6 +416,8 @@ class Level_1 :
             else :
                 win.screen.blit( self.assets.bullet_expl, (self.collide_explor[1][0]+2, self.collide_explor[1][1] ) )
             self.ex_c += 1
+            self.controlColition.execute(self.sounds)
+
         elif self.collide_explor[0] and self.ex_c >= 8 :
             self.collide_explor[0] = False
             self.ex_c = 0
