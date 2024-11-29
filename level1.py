@@ -5,6 +5,9 @@ import numpy as np
 import matplotlib.pyplot as plt  
 from random import random
 from algos import *
+from sound import *
+from states import *
+from window import *
 
 class GameAssets :
     def __init__(self, win_size):
@@ -145,10 +148,10 @@ class LevelBullets:
         if self.bulet_produse != self.bullet_produse_delay:
             self.bulet_produse += 1
         self.popBullet()
-    def onDraw(self, screen):
+    def onDraw(self):
         for i in range( len(self.bullets )):
             bullet = self.bullets[i]
-            screen.blit( bullet.get_asset( self.bullets_col[i] ), bullet.position() )
+            win.screen.blit( bullet.get_asset( self.bullets_col[i] ), bullet.position() )
 
 class EnemiesHealth:
     def __init__(self, assets, max_health = 4):
@@ -169,14 +172,13 @@ class EnemiesHealth:
     def reduseHealth(self):
         self.health -= 1
 
-    def onDraw(self, screen, pos):
+    def onDraw(self, pos):
         # screen.blit( self.table, pos )
         for i in range(self.health) :
-            screen.blit( self.plus_pos[i][0], ( pos[0] + 5 + self.plus_pos[i][1], pos[1] + 5 ) )
+            win.screen.blit( self.plus_pos[i][0], ( pos[0] + 5 + self.plus_pos[i][1], pos[1] + 5 ) )
 
 class LevelEnemies:
-    def __init__(self, char_pos, enemy_assets, health_assets, screen):
-        self.screen = screen
+    def __init__(self, char_pos, enemy_assets, health_assets ):
         self.players_pos = char_pos
         self.enemy_assets = enemy_assets
         self.health_assets = health_assets
@@ -225,7 +227,7 @@ class LevelEnemies:
 
         drop_en = []
         for enemy in self.droping_enemies:
-            if enemy[0].y > self.screen.get_height() + self.enemy_assets[0].get_height():
+            if enemy[0].y > win.screen.get_height() + self.enemy_assets[0].get_height():
                 print("clean")
                 self.dead_droping_enemies.append(enemy)
                 continue
@@ -275,23 +277,23 @@ class LevelEnemies:
             enemy[0].update( -1*w, self.drop_v )
 
 
-    def onDraw( self, screen ):
+    def onDraw( self ):
         self.count1 += 1
         self.count1 %= len(self.inArray1)
         self.count2 += 1
         self.count2 %= len(self.inArray2)
         for enemy in self.enemes :
-            screen.blit( enemy[0].asset, enemy[0].position() )
-            enemy[1].onDraw(screen, [enemy[0].position()[0], enemy[0].position()[1] - 10] )
+            win.screen.blit( enemy[0].asset, enemy[0].position() )
+            enemy[1].onDraw( [enemy[0].position()[0], enemy[0].position()[1] - 10] )
         for enemy in self.dead_enemies :
             enemy[1].health -= 1
-            screen.blit( enemy[0].asset, enemy[0].position() )
+            win.screen.blit( enemy[0].asset, enemy[0].position() )
         
         for enemy in self.droping_enemies:
-            screen.blit( enemy[0].asset, enemy[0].position() )
+            win.screen.blit( enemy[0].asset, enemy[0].position() )
         for enemy in self.dead_droping_enemies :
             enemy[1].health -= 1
-            screen.blit( enemy[0].asset, enemy[0].position() )
+            win.screen.blit( enemy[0].asset, enemy[0].position() )
 
 
 class newBulletControl(Control):
@@ -300,13 +302,12 @@ class newBulletControl(Control):
 
 
 class Level_1 :
-    def __init__(self, screen, dim, clock, title, state, control, sounds ):
-        self.sounds = sounds
-        self.assets = GameAssets(dim)
-        self.size = dim
+    def __init__(self ):
+        self.sounds = GameSounds()
+        self.assets = GameAssets(win.dim)
         char = self.assets.move_left # in this version left right and char is the same
-        char_x  = (dim[0]/2) - char.get_width()/2
-        char_y  = dim[1] - dim[1]/20 - char.get_height()
+        char_x  = (win.dim[0]/2) - char.get_width()/2
+        char_y  = win.dim[1] - win.dim[1]/20 - char.get_height()
         self.move_dis = char.get_width()/4 
 
         # self.character = GameObject(char, char_x, char_y)
@@ -317,7 +318,7 @@ class Level_1 :
         self.Bullets = LevelBullets( (self.character.x + self.character.asset.get_width()/2, self.init_bullet_pos_y), self.assets.bullet, self.assets.bullet_expl )
 
         #enemys
-        self.Enemies = LevelEnemies((char_x, char_y), self.assets.enemys, [self.assets.enemy_helth_table, self.assets.enemy_health_bar1, self.assets.enemy_health_bar2, self.assets.enemy_health_bar3], screen)
+        self.Enemies = LevelEnemies((char_x, char_y), self.assets.enemys, [self.assets.enemy_helth_table, self.assets.enemy_health_bar1, self.assets.enemy_health_bar2, self.assets.enemy_health_bar3])
         # self.enemes  = [ GameObject(self.assets.enemys[2], char_x, 140+self.assets.enemys[2].get_height()) ]
 
         # HEALTH:
@@ -329,9 +330,6 @@ class Level_1 :
         self.health_bar_width = self.healthBar.get_width()
         self.helthBars = [ GameObject(self.healthBar, self.FirstBarPos[0] + i*self.health_bar_width, self.FirstBarPos[1] ) for i in range(0,8) ]
         self.isGameOver = False
-        self.screen = screen
-        self.gameState = state
-        self.controlState = control
 
         self.collide_explor = [ False, self.character.position ]
         self.ex_c = 0
@@ -349,16 +347,16 @@ class Level_1 :
     def onControl(self):
         char = self.character
         dx   = 0
-        if self.controlState.right and (char.x < (self.size[0]-char.asset.get_width())):
+        if control_State.right and (char.x < (win.dim[0]-char.asset.get_width())):
             char.x += self.move_dis
             dx = self.move_dis
         
-        if self.controlState.left and (char.x > 0):
+        if control_State.left and (char.x > 0):
             char.x -= self.move_dis
             dx = - self.move_dis
 
-        self.Bullets.onControl(self.controlState.space, [char.x + char.asset.get_width()/2, char.y] )
-        if self.controlState.space :
+        self.Bullets.onControl(control_State.space, [char.x + char.asset.get_width()/2, char.y] )
+        if control_State.space :
             self.controlBullet.execute(self.sounds)
             self.character.add_bullet()
 
@@ -385,32 +383,31 @@ class Level_1 :
         
         if len(self.Enemies.enemes) == 0 and len(self.Enemies.dead_enemies) == 0:
             print( self.character.get_score() )
-            self.gameState.set_end_game()
+            game_State.set_end_game()
             
         # self.helthBars.pop()
-        self.Enemies.moveEnemies(self.character.x, -1*dx, self.size[0], self.character.position())
+        self.Enemies.moveEnemies(self.character.x, -1*dx, win.dim[0], self.character.position())
         
         if len( self.helthBars ) == 0 :
-            self.gameState.set_end_game()
+            game_State.set_end_game()
 
     def onEvent(self):
         self.character.add_time()
-        return self.gameState, self.controlState;
 
     def onDraw(self):
-        self.screen.blit( self.assets.background,(0,0) )
-        self.screen.blit( self.character.asset, self.character.position() )
+        win.screen.blit( self.assets.background,(0,0) )
+        win.screen.blit( self.character.asset, self.character.position() )
 
-        self.Enemies.onDraw(self.screen)
-        self.screen.blit(self.healthTable, self.helthPos)
+        self.Enemies.onDraw()
+        win.screen.blit(self.healthTable, self.helthPos)
         for bar in self.helthBars : 
-            self.screen.blit( bar.asset, bar.position())
-        self.Bullets.onDraw(self.screen)
+            win.screen.blit( bar.asset, bar.position())
+        self.Bullets.onDraw()
         if self.collide_explor[0] and self.ex_c < 8 :
             if self.ex_c % 2 :
-                self.screen.blit( self.assets.bullet_expl, (self.collide_explor[1][0]-2, self.collide_explor[1][1] ) )
+                win.screen.blit( self.assets.bullet_expl, (self.collide_explor[1][0]-2, self.collide_explor[1][1] ) )
             else :
-                self.screen.blit( self.assets.bullet_expl, (self.collide_explor[1][0]+2, self.collide_explor[1][1] ) )
+                win.screen.blit( self.assets.bullet_expl, (self.collide_explor[1][0]+2, self.collide_explor[1][1] ) )
             self.ex_c += 1
         elif self.collide_explor[0] and self.ex_c >= 8 :
             self.collide_explor[0] = False

@@ -1,11 +1,11 @@
 import pygame
 from algos import truncate
 from database import *
+from window import *
 
 class Score:
-    def __init__(self, screen):
+    def __init__(self):
         self.DB = GamesDataBase()
-        self.screen = screen
         self.score = 0
         self.name = "USER"
         
@@ -53,15 +53,15 @@ class Score:
         self.updateHightScore()
         score = self.score
         hightscore = self.HightScore
-        width  = self.screen.get_width()
-        height = self.screen.get_height()
+        width  = win.screen.get_width()
+        height = win.screen.get_height()
         score = "%.3f" %score
         hightscore = "%.3f" %hightscore
         text_surface = self.font.render(f"SCORE {score}", True, (255, 255, 255, 100))
         if self.count < 8:
-            self.screen.blit(text_surface, (width/2 - 50*5, height/5 ))
+            win.screen.blit(text_surface, (width/2 - 50*5, height/5 ))
         text_surface = self.font.render(f"Hight SCORE {hightscore}", True, (255, 255, 255, 100))
         if self.count < 8:
-            self.screen.blit(text_surface, (width/2 - 50*5, 2*height/5 ))
+            win.screen.blit(text_surface, (width/2 - 50*5, 2*height/5 ))
         self.count += 1
         self.count %= 10
