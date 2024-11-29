@@ -11,8 +11,11 @@ class StartGameAssets :
     def loadImageAsset(self, name):
         return pygame.image.load(f"assets\{name}")
 
+class ClickControl(Control):
+    def execute(self, resiver):
+        resiver.clicked()
 class startGame :
-    def __init__(self, screen, win_size,  clock, state, control):
+    def __init__(self, screen, win_size,  clock, state, control, sounds):
         self.screen = screen
         self.size = win_size
         self.clock = clock
@@ -23,6 +26,8 @@ class startGame :
         self.gameState    = state
         self.controlState = control
         self.font = pygame.font.Font(pygame.font.get_default_font(), 50)
+        self.controlClick = ClickControl()
+        self.sounds = sounds
     def onEvent( self ):
         end = False
         self.onStart = False
@@ -34,6 +39,7 @@ class startGame :
             if is_point_inside_box( [x,y], (self.str_x,self.str_y), self.assets.startBtn.get_width(), self.assets.startBtn.get_height() ) :
                 print ( " edw ftanw ")
                 self.gameState.set_start_game()
+                self.controlClick.execute(self.sounds)
         return self.gameState, self.controlState
     
     def onControl(self):

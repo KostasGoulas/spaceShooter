@@ -4,6 +4,7 @@ import math
 import numpy as np 
 import matplotlib.pyplot as plt  
 from random import random
+from algos import *
 
 class GameAssets :
     def __init__(self, win_size):
@@ -72,7 +73,7 @@ class Player( GameObject ):
     def get_score(self):
         if self.health_bars == 0 or self.bullets == 0 or self.time == 0:
             return 0
-        return 1000 * self.health_bars / ((self.bullets *0.8) + (self.time*0.2))
+        return (100 * self.health_bars) - ((self.bullets *0.2) - (self.time*0.2))
 
     
 class LevelBullets:
@@ -293,9 +294,15 @@ class LevelEnemies:
             screen.blit( enemy[0].asset, enemy[0].position() )
 
 
+class newBulletControl(Control):
+    def execute(self, resiver):
+        resiver.shooted()
+
+
 class Level_1 :
-    def __init__(self, screen, dim, clock, title, state, control ):
-        self.assets  = GameAssets(dim)
+    def __init__(self, screen, dim, clock, title, state, control, sounds ):
+        self.sounds = sounds
+        self.assets = GameAssets(dim)
         self.size = dim
         char = self.assets.move_left # in this version left right and char is the same
         char_x  = (dim[0]/2) - char.get_width()/2
@@ -329,6 +336,8 @@ class Level_1 :
         self.collide_explor = [ False, self.character.position ]
         self.ex_c = 0
 
+        self.controlBullet = newBulletControl()
+
     def Reset(self):
         self.helthBars = [ GameObject(self.healthBar, self.FirstBarPos[0] + i*self.health_bar_width, self.FirstBarPos[1] ) for i in range(0,8) ]
         self.Bullets.onReset()
@@ -350,6 +359,7 @@ class Level_1 :
 
         self.Bullets.onControl(self.controlState.space, [char.x + char.asset.get_width()/2, char.y] )
         if self.controlState.space :
+            self.controlBullet.execute(self.sounds)
             self.character.add_bullet()
 
 

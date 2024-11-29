@@ -5,16 +5,20 @@ from startGame import *
 from states import *
 from level1 import *
 from scoreSystem import *
+from sound import *
+from algos import *
+
+
 
 class gameManager:
     def __init__(self, screen, win_size, clock, title):
-        self.gameState = gameSate()
+        self.Sounds       = GameSounds()
+        self.gameState    = gameSate()
         self.controlState = controlState()
-        self.startGame = startGame( screen, win_size, clock, self.gameState, self.controlState )
-        self.endGame   = endGame( screen, win_size, clock, self.gameState, self.controlState )
-        self.level_1   = Level_1( screen, win_size, clock, title, self.gameState, self.controlState )
-        self.Score     = Score(screen)
-
+        self.startGame    = startGame( screen, win_size, clock, self.gameState, self.controlState, self.Sounds )
+        self.endGame      = endGame( screen, win_size, clock, self.gameState, self.controlState )
+        self.level_1      = Level_1( screen, win_size, clock, title, self.gameState, self.controlState, self.Sounds )
+        self.Score        = Score(screen)
     def setScore(self):
         score = self.level_1.character.get_score()
         if score > 0 :

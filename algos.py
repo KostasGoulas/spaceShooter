@@ -16,3 +16,9 @@ def dv( pos1, pos2 ):
 def normalize( p ):
     len = math.sqrt(p[0]*p[0] + p[1]*p[1])
     return ( p[0]/len, p[1]/len )
+
+class Control :
+    def __init__(self) :
+        pass
+    def execute(self, resiver) :
+        pass

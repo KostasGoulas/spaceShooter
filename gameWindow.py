@@ -31,6 +31,8 @@ class GameWindow :
             self.clock.tick(30)
 
 
+
+
 # basic game window with event handle for right left and space keys:
 class Game(GameWindow):
     def __init__(self, dim, title):
@@ -41,6 +43,7 @@ class Game(GameWindow):
         self.space_pressed = False
         self.icon = pygame.image.load("assets\icon.svg")
         pygame.display.set_icon(self.icon)
+        self.conntrol = ClickControl()
     def onEvent(self):
         self.end = self.manager.gameState.exit
         self.manager.controlState.reset()
