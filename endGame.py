@@ -19,6 +19,7 @@ class EndGameAssets :
 
 class endGame :
     def __init__(self):
+        self.font = pygame.font.Font(pygame.font.get_default_font(), 60)
         self.assets = EndGameAssets(win.dim)
         self.lose_x = (win.dim[0]/2) - (self.assets.lose.get_width()/2)
         self.lose_y = (win.dim[1]/20)
@@ -51,7 +52,9 @@ class endGame :
         win.screen.fill((0, 0, 0))
         win.screen.blit( self.assets.background,(0,0) )
         if self.count < 7:
-            win.screen.blit( self.assets.lose,(self.lose_x, self.lose_y) )
+            text_surface = self.font.render("  Game Over", True, (255, 255, 255, 50))
+            win.screen.blit( text_surface,(self.lose_x, self.lose_y) )
+            # win.screen.blit( self.assets.lose,(self.lose_x, self.lose_y) )
             # self.screen.blit( self.assets.score,(self.lose_x, 5*self.lose_y) )
             # self.screen.blit( self.assets.record,(self.lose_x, 9*self.lose_y) )
         if self.on_close :
