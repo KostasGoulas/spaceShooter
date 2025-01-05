@@ -4,6 +4,7 @@ from endGame import *
 from startGame import *
 from states import *
 from level1 import *
+from level2 import Level_2
 from scoreSystem import *
 from sound import *
 from algos import *
@@ -15,6 +16,7 @@ class gameManager:
         self.startGame    = startGame()
         self.endGame      = endGame()
         self.level_1      = Level_1()
+        self.level_2      = Level_2()
         self.Score        = Score()
     def setScore(self):
         score = self.level_1.character.get_score()
@@ -31,6 +33,8 @@ class gameManager:
             self.Score.onDraw()
         elif game_State.level_1 :
             self.level_1.onDraw()
+        elif game_State.level_2 :
+            self.level_2.onDraw()
         else:
             pass
 
@@ -42,6 +46,9 @@ class gameManager:
         elif game_State.level_1 :
             self.level_1.onEvent()
             self.setScore()
+        elif game_State.level_2 :
+            self.level_2.onEvent()
+            self.setScore()
         else:
             pass
 
@@ -52,5 +59,7 @@ class gameManager:
             self.endGame.onControl()
         elif game_State.level_1 :
             self.level_1.onControl()
+        elif game_State.level_2 :
+            self.level_2.onControl()
         else:
             pass

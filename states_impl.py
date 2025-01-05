@@ -23,24 +23,36 @@ class gameSate:
     def __init__(self) :
         self.start_screen = True
         self.level_1      = False
+        self.level_2      = False
         self.end_game     = False
         self.exit         = False
     
     def set_start_game(self):
         self.start_screen = False
         self.level_1      = True
+        self.level_2      = False
         self.end_game     = False
         self.exit         = False
     
+    def set_level2(self):
+        self.start_screen = False
+        self.level_1      = False
+        self.level_2      = True
+        self.end_game     = False
+        self.exit         = False
+
+
     def set_end_game(self):
         self.start_screen = False
         self.level_1      = False
+        self.level_2      = False
         self.end_game     = True
         self.exit         = False
 
     def set_exit(self):
         self.start_screen = False
         self.level_1      = False
+        self.level_2      = False
         self.end_game     = False
         self.exit         = True
     
@@ -48,5 +60,6 @@ class gameSate:
         print( "START" )
         self.start_screen = True
         self.level_1      = False
+        self.level_2      = False
         self.end_game     = False
         self.exit         = False

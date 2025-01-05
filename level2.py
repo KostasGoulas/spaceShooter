@@ -9,26 +9,27 @@ from sound import *
 from states import *
 from window import *
 
-import level1_module as l1
+import level2_module as l2
 
-class Level_1 :
+
+class Level_2 :
     def __init__(self ):
         self.sounds = GameSounds()
-        self.assets = l1.GameAssets(win.dim)
+        self.assets = l2.GameAssets(win.dim)
         char = self.assets.move_left # in this version left right and char is the same
         char_x  = (win.dim[0]/2) - char.get_width()/2
         char_y  = win.dim[1] - win.dim[1]/20 - char.get_height()
         self.move_dis = char.get_width()/4 
 
         # self.character = GameObject(char, char_x, char_y)
-        self.character = l1.Player(char, char_x, char_y, 8)
+        self.character = l2.Player(char, char_x, char_y, 8)
 
         #bullets
         self.init_bullet_pos_y =  char_y-self.assets.bullet.get_height()
-        self.Bullets = l1.LevelBullets( (self.character.x + self.character.asset.get_width()/2, self.init_bullet_pos_y), self.assets.bullet, self.assets.bullet_expl )
+        self.Bullets = l2.LevelBullets( (self.character.x + self.character.asset.get_width()/2, self.init_bullet_pos_y), self.assets.bullet, self.assets.bullet_expl )
 
         #enemys
-        self.Enemies = l1.LevelEnemies((char_x, char_y), self.assets.enemys, [self.assets.enemy_helth_table, self.assets.enemy_health_bar1, self.assets.enemy_health_bar2, self.assets.enemy_health_bar3])
+        self.Enemies = l2.LevelEnemies((char_x, char_y), self.assets.enemys, [self.assets.enemy_helth_table, self.assets.enemy_health_bar1, self.assets.enemy_health_bar2, self.assets.enemy_health_bar3])
         # self.enemes  = [ GameObject(self.assets.enemys[2], char_x, 140+self.assets.enemys[2].get_height()) ]
 
         # HEALTH:
@@ -44,8 +45,8 @@ class Level_1 :
         self.collide_explor = [ False, self.character.position ]
         self.ex_c = 0
 
-        self.controlBullet   = l1.newBulletControl()
-        self.controlColition = l1.colitionControl()
+        self.controlBullet   = l2.newBulletControl()
+        self.controlColition = l2.colitionControl()
 
     def Reset(self):
         self.helthBars = [ GameObject(self.healthBar, self.FirstBarPos[0] + i*self.health_bar_width, self.FirstBarPos[1] ) for i in range(0,8) ]
@@ -94,15 +95,13 @@ class Level_1 :
         
         if len(self.Enemies.enemes) == 0 and len(self.Enemies.dead_enemies) == 0:
             print( self.character.get_score() )
-            # game_State.set_end_game()
-            game_State.set_level2()
+            game_State.set_end_game()
             
         # self.helthBars.pop()
         self.Enemies.moveEnemies(self.character.x, -1*dx, win.dim[0], self.character.position())
         
         if len( self.helthBars ) == 0 :
-            # game_State.set_end_game()
-            game_State.set_level2()
+            game_State.set_end_game()
 
     def onEvent(self):
         self.character.add_time()
