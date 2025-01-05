@@ -26,9 +26,11 @@ class gameManager:
     def onDraw(self):
         if game_State.start_screen :
             self.level_1.Reset()
+            self.level_2.Reset()
             self.startGame.onDraw()
         elif game_State.end_game :
             self.level_1.Reset()
+            self.level_2.Reset()
             self.endGame.onDraw()
             self.Score.onDraw()
         elif game_State.level_1 :

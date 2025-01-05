@@ -42,7 +42,8 @@ class endGame :
                 game_State.set_exit()
             if is_point_inside_box( [x,y], self.replay_pos, self.assets.replay.get_width(), self.assets.replay.get_height() ) :
                 print("start the game")
-                game_State.set_start_game()
+                # game_State.set_start_game()
+                game_State.set_start()
     
     def onControl(self):
         self.count += 1

@@ -43,6 +43,7 @@ class gameSate:
 
 
     def set_end_game(self):
+        print( "END GAME !!!!!!!!!!!!!! ")
         self.start_screen = False
         self.level_1      = False
         self.level_2      = False
