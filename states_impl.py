@@ -6,12 +6,20 @@ class controlState:
         self.space      = False
         self.mouse_down = False
         self.mouse_pos  = (0,0)
+        self.up         = False
+        self.down       = False
     def reset(self):
         self.right = False
         self.left  = False
         self.space = False
         self.mouse_down = False
-
+        self.up         = False
+        self.down       = False
+    
+    def set_up(self):
+        self.up = True
+    def set_down(self):
+        self.down = True
     def set_right(self):
         self.right = True
     def set_left(self):

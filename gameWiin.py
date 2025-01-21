@@ -65,6 +65,12 @@ class Game(GameWindow):
         if keys[pygame.K_SPACE] : 
             control_State.set_space()
             print("Space Pressed")
+        if keys[pygame.K_UP] :
+            control_State.set_up()
+            print("Up pressed")
+        if keys[pygame.K_DOWN] :
+            control_State.set_down()
+            print("Down pressed")
         super().onEvent()
     def onDraw(self):
         if not game_State.exit :

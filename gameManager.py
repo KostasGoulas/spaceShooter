@@ -66,12 +66,11 @@ class gameManager:
                 boot_imp.set_connection_to_zero()
                 boot_imp.server_open()
                 self.network_state = 's'
-                self.Multiplayer  = SpaceShooterMult('s')
+                self.Multiplayer  = SpaceShooterMult2('s')
                 self.is_connected = True
-                print("am i here?")
             elif self.network_state != 's' :
                 self.network_state = 'c'
-                self.playerM = SpaceShooterMult('c')
+                self.playerM = SpaceShooterMult2('c')
                 boot_imp.add_connection()
                 self.is_connected = True
         elif game_State.end_game :
