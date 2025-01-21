@@ -22,6 +22,15 @@ class controlState:
 class gameSate:
     def __init__(self) :
         self.start_screen = True
+        self.multiplayer  = False
+        self.level_1      = False
+        self.level_2      = False
+        self.end_game     = False
+        self.exit         = False
+
+    def set_mult(self) :
+        self.start_screen = False
+        self.multiplayer  = True
         self.level_1      = False
         self.level_2      = False
         self.end_game     = False
@@ -29,6 +38,7 @@ class gameSate:
     
     def set_start_game(self):
         self.start_screen = False
+        self.multiplayer  = False
         self.level_1      = True
         self.level_2      = False
         self.end_game     = False
@@ -36,6 +46,7 @@ class gameSate:
     
     def set_level2(self):
         self.start_screen = False
+        self.multiplayer  = False
         self.level_1      = False
         self.level_2      = True
         self.end_game     = False
@@ -45,6 +56,7 @@ class gameSate:
     def set_end_game(self):
         print( "END GAME !!!!!!!!!!!!!! ")
         self.start_screen = False
+        self.multiplayer  = False
         self.level_1      = False
         self.level_2      = False
         self.end_game     = True
@@ -52,6 +64,7 @@ class gameSate:
 
     def set_exit(self):
         self.start_screen = False
+        self.multiplayer  = False
         self.level_1      = False
         self.level_2      = False
         self.end_game     = False
@@ -60,6 +73,7 @@ class gameSate:
     def set_start(self):
         print( "START" )
         self.start_screen = True
+        self.multiplayer  = False
         self.level_1      = False
         self.level_2      = False
         self.end_game     = False

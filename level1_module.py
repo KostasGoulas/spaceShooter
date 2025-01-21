@@ -128,7 +128,7 @@ class LevelBullets:
         for i in range( len(self.bullets) ):
             bullet = self.bullets[i]
             if self.bullets_col[i] >= 6:
-                continue;
+                continue
             bullets_new.append(bullet)
             bullet_col_new.append(self.bullets_col[i])
         self.bullets = bullets_new
@@ -225,14 +225,14 @@ class LevelEnemies:
         dead_dr_enemies_new = []
         for enemy in self.dead_droping_enemies :
             if enemy[1].health <= -12 :
-                continue;
+                continue
             dead_dr_enemies_new.append(enemy)
         self.dead_droping_enemies = dead_dr_enemies_new
         dead_enemies_new = []
         for enemy in self.dead_enemies :
             if enemy[1].health <= -6 :
                 self.droping_enemies.append(enemy)
-                continue;
+                continue
             dead_enemies_new.append(enemy)
         self.dead_enemies = dead_enemies_new
 
@@ -249,7 +249,7 @@ class LevelEnemies:
         for enemy in self.enemes :
             if enemy[1].health <= 0 :
                 self.dead_enemies.append(enemy)
-                continue;
+                continue
             enemies_new.append(enemy)
         self.enemes = enemies_new
     

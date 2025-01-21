@@ -1,4 +1,4 @@
-from gameWindow import *
+from gameWiin import *
 from endGame import *
 from algos import *
 

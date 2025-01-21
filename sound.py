@@ -8,9 +8,9 @@ class GameSounds:
         self.hit   = pygame.mixer.Sound("assets\sounds\explr.wav")
 
         # background music
-        pygame.mixer.music.load("assets\sounds\8-bit-loop-189494.mp3")
-        pygame.mixer.music.play(loops=-1)
-        pygame.mixer.music.set_volume(0.2)
+        # pygame.mixer.music.load("assets\sounds\8-bit-loop-189494.mp3")
+        # pygame.mixer.music.play(loops=-1)
+        # pygame.mixer.music.set_volume(0.2)
     
     def clicked(self):
         self.click.play()

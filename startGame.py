@@ -48,7 +48,8 @@ class startGame :
             print("edw")
             if is_point_inside_box( [x,y], (self.str_mult_x,self.str_mult_y), self.assets.startBtn.get_width(), self.assets.startBtn.get_height() ) :
                 print ( " edw ftanw ")
-                game_State.set_start_game()
+                # game_State.set_start_game()
+                game_State.set_mult()
                 self.controlClick.execute(self.sounds)
     
     def onControl(self):
