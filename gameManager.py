@@ -37,7 +37,8 @@ class gameManager:
             self.startGame.onDraw()
         elif game_State.multiplayer and boot_imp.connections_count() == 2:
             if self.network_state == 's':
-                self.Multiplayer.onDraw()
+                pass
+                # self.Multiplayer.onDraw()
             else :
                 self.playerM.onDraw()
         elif game_State.end_game :
