@@ -5,6 +5,7 @@ import player_assets
 from states import *
 from window import *
 import level1_module as l1
+from sound import *
 # from gameWiin import *
 
 class MultiplayerNetwork :
@@ -186,7 +187,9 @@ class SpaceShooterMult():
 class SpaceShooterMult2():
     def __init__(self, mode ):
         self.radius = 30
+        self.sounds = GameSounds()
         self.assets = l1.GameAssets(win.dim)
+        self.controlBullet   = l1.newBulletControl()
         self.BLACK=(0,0,0)
         self.WHITE=(255,255,255)
         self.GREEN=(0,255,0)
@@ -199,6 +202,8 @@ class SpaceShooterMult2():
         self.playerB = player_assets.Ball(self.BLUE, self.radius, self.radius )
         self.playerB.set_uper_and_down_lims( 0, 800-self.radius )
         self.playerB.rect.center = (800-self.radius, 200)
+        self.playersA_bullets = player_assets.LevelBullets(self.radius*3, self.playerA.rect.y)
+        self.playersB_bullets = player_assets.LevelBullets(800-self.radius*3, self.playerB.rect.y)
         self.all_sprites_list=pygame.sprite.Group()
         self.all_sprites_list.add(self.playerA)
         self.all_sprites_list.add(self.playerB)
@@ -279,11 +284,12 @@ class SpaceShooterMult2():
                 # keys = pygame.key.get_pressed()
                 action = None
                 if control_State.up:
-                # if keys[pygame.K_w]:
                     action = 'moveUp'
-                # elif keys[pygame.K_s]:
                 elif control_State.down:
                     action = 'moveDown'
+                if control_State.space :
+                    self.controlBullet.execute(self.sounds)
+                    print("SPACE")
                     
                 # If no action is detected, send a dummy packet
                 # *SOS* if we do not send a packet the server will be blocked waiting
