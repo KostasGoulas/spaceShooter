@@ -185,6 +185,7 @@ class SpaceShooterMult():
 # EXAMPLE :
 class SpaceShooterMult2():
     def __init__(self, mode ):
+        self.radius = 30
         self.assets = l1.GameAssets(win.dim)
         self.BLACK=(0,0,0)
         self.WHITE=(255,255,255)
@@ -192,10 +193,12 @@ class SpaceShooterMult2():
         self.RED=(255,0,0)
         self.BLUE=(0,0,255)
         self.main_loop = True #flag to indicate that we are working on main loop
-        self.playerA = player_assets.Ball(self.RED, 20, 20 )
-        self.playerA.rect.center = (20, 200)
-        self.playerB = player_assets.Ball(self.BLUE, 20, 20 )
-        self.playerB.rect.center = (780, 200)
+        self.playerA = player_assets.Ball(self.RED, self.radius, self.radius )
+        self.playerA.set_uper_and_down_lims( 0, 800 - self.radius )
+        self.playerA.rect.center = (self.radius, 200)
+        self.playerB = player_assets.Ball(self.BLUE, self.radius, self.radius )
+        self.playerB.set_uper_and_down_lims( 0, 800-self.radius )
+        self.playerB.rect.center = (800-self.radius, 200)
         self.all_sprites_list=pygame.sprite.Group()
         self.all_sprites_list.add(self.playerA)
         self.all_sprites_list.add(self.playerB)
