@@ -210,6 +210,8 @@ class SpaceShooterMult2():
         self.all_sprites_list.add(self.playerB)
         self.clock=pygame.time.Clock()
         self.counter = 1
+        self.countera = 1
+        self.counterb = 1
         self.network = MultiplayerNetwork()
         self.mode = mode
         if mode == 's':
@@ -218,25 +220,6 @@ class SpaceShooterMult2():
         else :
             print( "Connect player")
             self.network.connectClient()
-    # def onEvent(self):
-    #     self.end = game_State.exit
-    #     control_State.reset()
-    #     keys = pygame.key.get_pressed()
-    #     x, y = pygame.mouse.get_pos()
-    #     control_State.mouse_pos = (x,y)
-    #     if pygame.mouse.get_pressed()[0] :
-    #         print("click")
-    #         control_State.mouse_down = True
-    #     if keys[pygame.K_RIGHT] :
-    #         control_State.set_right()
-    #         print("Right pressed")
-    #     if keys[pygame.K_LEFT] :
-    #         control_State.set_left()
-    #         print("Left pressed")
-    #     if keys[pygame.K_SPACE] : 
-    #         control_State.set_space()
-    #         print("Space Pressed")
-        # super().onEvent()
     def onControl(self):
         # super().onControl()
         if self.mode == 's':
@@ -257,10 +240,13 @@ class SpaceShooterMult2():
                         if data_from_clientA['action'] == 'bullet':
                             space_a_ev = 1
                 
-                if space_a_ev :
+                if space_a_ev and self.countera > 4 :
                     bullet = player_assets.Bullet( self.GREEN, 10, 10 )
                     bullet.rect.center = (300, random.randint(1,799))
                     self.all_sprites_list.add( bullet )
+                    self.countera = 1
+                else :
+                    space_a_ev = 0
                 # self.playersA_bullets.onControl(space_a_ev, self.playerA.get_position())
                 
                 space_b_ev = 0
@@ -273,10 +259,13 @@ class SpaceShooterMult2():
                         if data_from_clientB['action'] == 'bullet':
                             space_b_ev = 1
                 # self.playersB_bullets.onControl(space_b_ev, self.playerB.get_position())
-                if space_b_ev :
+                if space_b_ev and self.counterb > 4:
                     bullet = player_assets.Bullet( self.GREEN, 10, 10 )
                     bullet.rect.center = (500, random.randint(1,799))
                     self.all_sprites_list.add( bullet )
+                    self.counterb = 1
+                else :
+                    space_b_ev = 0
 
                 game_state = {
                     'playerA_y': self.playerA.rect.y,
@@ -286,7 +275,8 @@ class SpaceShooterMult2():
                 }
                 network.send_data(self.network.conn1, game_state)
                 network.send_data(self.network.conn2, game_state)
-                self.counter=self.counter+1
+                self.countera=self.countera+1
+                self.counterb=self.counterb+1
             except Exception as e:
                 print(f"An error occurred during the game loop: {e}")
                 return
