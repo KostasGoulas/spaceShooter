@@ -4,10 +4,10 @@ from random import randint
 
 BLACK=(0,0,0)
 
+
 class Ball(pygame.sprite.Sprite):
     def __init__(self,color, width, height):
         super().__init__()
-
         self.uper_lim = -100000
         self.down_lim = +100000
         self.image=pygame.Surface([width,height])
@@ -41,6 +41,14 @@ class Ball(pygame.sprite.Sprite):
             self.move(-5, 0)
 
 
+class Player(Ball):
+    def __init__(self, color, width, height, player):
+        super().__init__(color, width, height)
+        self.player = player
+
+class Bullet(Ball):
+    def __init__(self, color, width, height):
+        super().__init__(color, width, height)
 
 # class colitionControl(math.Control):
 #     def execute(self, resiver):
@@ -48,25 +56,28 @@ class Ball(pygame.sprite.Sprite):
 
 
 class LevelBullets:
-    def __init__(self, init_pos, player):
+    def __init__(self, player):
         self.bullets              = []
         self.bullets_col          = []
         self.bullet_produse_delay = 6 #frames
         self.bulet_produse        = 0 #counter
-        self.init_pos             = init_pos #(self.character.x + self.character.asset.get_width()/2, self.init_bullet_pos_y)
         # self.controlColition      = colitionControl()
         self.BLACK=(0,0,0)
         self.WHITE=(255,255,255)
         self.GREEN=(0,255,0)
         self.player = player
-    
+        self.all_sprites_list=pygame.sprite.Group()
     def onReset(self):
         self.bullets = []
         self.bullets_col = []
 
     def addBullet(self, pos):
         if self.bulet_produse == self.bullet_produse_delay :
-            self.bullets.append( Ball(self.GREEN, 10, 10 ) )
+            bullet = Ball(self.GREEN, 10, 10 )
+            bullet.rect.center = pos
+            self.bullets.append( bullet )
+            self.all_sprites_list.add( bullet )
+            
             self.bullets_col.append(0)
             self.bulet_produse = 0
     
@@ -76,10 +87,13 @@ class LevelBullets:
             bullet = self.bullets[i]
             if self.bullets_col[i] == 0 :
                 bullet.moveForword( self.player )
-            if bullet.x > 800 or bullet.x < 0 :
+            if bullet.rect.x > 800 or bullet.rect.x < 0 :
                 pop_bullet = True
         if pop_bullet :
             self.bullets.pop(0)
+            self.all_sprites_list.empty()
+            for bullet in self.bullets:
+                self.all_sprites_list.add(bullet)
             self.bullets_col.pop(0)
             print("delete buulet")
 
@@ -114,6 +128,7 @@ class LevelBullets:
 
     def onControl(self, event, pos):
         if event :
+            print( " ADDDED ")
             self.addBullet(pos)
         if self.bulet_produse != self.bullet_produse_delay:
             self.bulet_produse += 1
@@ -123,4 +138,6 @@ class LevelBullets:
             bullet = self.bullets[i]
             # bullet.update()
             # bullet.draw()
-            win.screen.blit( bullet, bullet.get_position() )
+            self.all_sprites_list.update()
+            self.all_sprites_list.draw()
+            # win.screen.blit( bullet.rect, bullet.get_position() )
