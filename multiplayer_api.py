@@ -217,6 +217,9 @@ class SpaceShooterMult2():
         self.counterb = 1
         self.network = MultiplayerNetwork()
         self.mode = mode
+
+        self.healthA = player_assets.Health( 4, (255,0,0,40), (60, 30) )
+        self.healthB = player_assets.Health( 4, (0,0,255,40), (700, 30))
         if mode == 's':
             print( "OPEN THE SERVER")
             self.network.connectServer()
@@ -368,6 +371,7 @@ class SpaceShooterMult2():
                 self.pop_sprite(self.bullets_a_list, bullet)
                 print("BOOM !!")
                 self.controlBulletCol.execute(self.sounds)
+                self.healthB.hited()
                 break
         for bullet in self.bullets_a_list:
             if bullet.rect.x > 790  :
@@ -377,6 +381,7 @@ class SpaceShooterMult2():
             if bullet.rect.x < 100 and bullet.collition(self.playerA) :
                 self.pop_sprite(self.bullets_b_list, bullet)
                 self.controlBulletCol.execute(self.sounds)
+                self.healthA.hited()
                 print("BOOM !!")
                 break
         for bullet in self.bullets_b_list:
@@ -396,4 +401,6 @@ class SpaceShooterMult2():
         self.all_sprites_list.draw(win.screen)
         self.bullets_a_list.draw(win.screen)
         self.bullets_b_list.draw(win.screen)
+        self.healthA.draw(win)
+        self.healthB.draw(win)
         # pygame.display.flip() #update the screen            
