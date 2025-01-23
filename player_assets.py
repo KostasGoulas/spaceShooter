@@ -47,8 +47,11 @@ class Player(Ball):
         self.player = player
 
 class Bullet(Ball):
-    def __init__(self, color, width, height):
+    def __init__(self, color, width, height, player):
         super().__init__(color, width, height)
+        self.player = player
+    def update(self):
+        self.moveForword(self.player)
 
 # class colitionControl(math.Control):
 #     def execute(self, resiver):
