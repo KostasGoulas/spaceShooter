@@ -191,6 +191,7 @@ class SpaceShooterMult2():
         self.sounds = GameSounds()
         self.assets = l1.GameAssets(win.dim)
         self.controlBullet   = l1.newBulletControl()
+        self.controlBulletCol = l1.colitionControl()
         self.BLACK=(0,0,0)
         self.WHITE=(255,255,255)
         self.GREEN=(0,255,0)
@@ -359,11 +360,14 @@ class SpaceShooterMult2():
     
     def update(self):
         self.all_sprites_list.update()
+        self.bullets_a_list.update()
+        self.bullets_b_list.update()
 
         for bullet in self.bullets_a_list:
             if bullet.rect.x > 700 and bullet.collition(self.playerB) :
                 self.pop_sprite(self.bullets_a_list, bullet)
                 print("BOOM !!")
+                self.controlBulletCol.execute(self.sounds)
                 break
         for bullet in self.bullets_a_list:
             if bullet.rect.x > 790  :
@@ -372,14 +376,13 @@ class SpaceShooterMult2():
         for bullet in self.bullets_b_list:
             if bullet.rect.x < 100 and bullet.collition(self.playerA) :
                 self.pop_sprite(self.bullets_b_list, bullet)
+                self.controlBulletCol.execute(self.sounds)
                 print("BOOM !!")
                 break
         for bullet in self.bullets_b_list:
             if bullet.rect.x < 10 :
                 self.pop_sprite(self.bullets_b_list, bullet)
                 break
-        self.bullets_a_list.update()
-        self.bullets_b_list.update()
 
 
     def onDraw(self):
