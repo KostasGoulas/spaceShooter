@@ -230,6 +230,7 @@ class SpaceShooterMult2():
                 # Receive data from Client B
                 data_from_clientB = network.receive_data(self.network.conn2)
                 
+                delay_per_bullet = 7
                 space_a_ev = 0
                 if data_from_clientA:
                     if data_from_clientA['action'] != 'no_action':
@@ -240,9 +241,10 @@ class SpaceShooterMult2():
                         if data_from_clientA['action'] == 'bullet':
                             space_a_ev = 1
                 
-                if space_a_ev and self.countera > 4 :
+                if space_a_ev and self.countera > delay_per_bullet :
                     bullet = player_assets.Bullet( self.GREEN, 10, 10 )
-                    bullet.rect.center = (300, random.randint(1,799))
+                    # bullet.rect.center = (300, random.randint(1,799))
+                    bullet.rect.center = (300, self.playerA.rect.y)
                     self.all_sprites_list.add( bullet )
                     self.countera = 1
                 else :
@@ -259,9 +261,10 @@ class SpaceShooterMult2():
                         if data_from_clientB['action'] == 'bullet':
                             space_b_ev = 1
                 # self.playersB_bullets.onControl(space_b_ev, self.playerB.get_position())
-                if space_b_ev and self.counterb > 4:
+                if space_b_ev and self.counterb > delay_per_bullet:
                     bullet = player_assets.Bullet( self.GREEN, 10, 10 )
-                    bullet.rect.center = (500, random.randint(1,799))
+                    # bullet.rect.center = (500, random.randint(1,799))
+                    bullet.rect.center = (500, self.playerB.rect.y)
                     self.all_sprites_list.add( bullet )
                     self.counterb = 1
                 else :
@@ -297,7 +300,6 @@ class SpaceShooterMult2():
                     action = 'moveDown'
                 if control_State.space :
                     action = 'bullet'
-                    self.controlBullet.execute(self.sounds)
                     print("SPACE")
                     
                 # If no action is detected, send a dummy packet
@@ -329,12 +331,16 @@ class SpaceShooterMult2():
                 # self.playersB_bullets.onControl(space_b_ev, self.playerB.get_position())
                 if space_a_ev :
                     bullet = player_assets.Bullet( self.GREEN, 10, 10 )
-                    bullet.rect.center = (300, random.randint(1,799))
+                    # bullet.rect.center = (300, random.randint(1,799))
+                    bullet.rect.center = (300, self.playerA.rect.y )
                     self.all_sprites_list.add( bullet )
+                    self.controlBullet.execute(self.sounds)
                 if space_b_ev :
                     bullet = player_assets.Bullet( self.GREEN, 10, 10 )
-                    bullet.rect.center = (500, random.randint(1,799))
+                    # bullet.rect.center = (500, random.randint(1,799))
+                    bullet.rect.center = (500, self.playerB.rect.y)
                     self.all_sprites_list.add( bullet )
+                    self.controlBullet.execute(self.sounds)
 
             except Exception as e:
                 print(f"An error occurred during client operation: {e}")
