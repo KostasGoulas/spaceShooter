@@ -350,23 +350,46 @@ class SpaceShooterMult2():
 
             except Exception as e:
                 print(f"An error occurred during client operation: {e}")
-    def onDraw(self):
-        win.screen.fill((0, 0, 0))
-        win.screen.blit( self.assets.background,(0,0) )
+
+    def pop_sprite(self, group, sprite_to_pop):
+        if sprite_to_pop in group:
+            group.remove(sprite_to_pop)  # Remove it from the group
+            return sprite_to_pop  # Return the popped sprite
+        return None
+    
+    def update(self):
         self.all_sprites_list.update()
 
         for bullet in self.bullets_a_list:
             if bullet.rect.x > 700 and bullet.collition(self.playerB) :
+                self.pop_sprite(self.bullets_a_list, bullet)
                 print("BOOM !!")
+                break
+        for bullet in self.bullets_a_list:
+            if bullet.rect.x > 790  :
+                self.pop_sprite(self.bullets_a_list, bullet)
+                break
         for bullet in self.bullets_b_list:
             if bullet.rect.x < 100 and bullet.collition(self.playerA) :
+                self.pop_sprite(self.bullets_b_list, bullet)
                 print("BOOM !!")
+                break
+        for bullet in self.bullets_b_list:
+            if bullet.rect.x < 10 :
+                self.pop_sprite(self.bullets_b_list, bullet)
+                break
+        self.bullets_a_list.update()
+        self.bullets_b_list.update()
 
+
+    def onDraw(self):
+        win.screen.fill((0, 0, 0))
+        win.screen.blit( self.assets.background,(0,0) )
+
+        self.update()
         # self.screen.fill(self.BLACK) #background color of screen/ Redraw black
         #draw the net
         # pygame.draw.line(screen, WHITE, [349,0],[349,500],5)
-        self.bullets_a_list.update()
-        self.bullets_b_list.update()
         self.all_sprites_list.draw(win.screen)
         self.bullets_a_list.draw(win.screen)
         self.bullets_b_list.draw(win.screen)
