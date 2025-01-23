@@ -273,7 +273,7 @@ class SpaceShooterMult2():
                     self.counterb = 1
                 else :
                     space_b_ev = 0
-
+                
                 game_state = {
                     'playerA_y': self.playerA.rect.y,
                     'playerB_y': self.playerB.rect.y,
@@ -354,6 +354,14 @@ class SpaceShooterMult2():
         win.screen.fill((0, 0, 0))
         win.screen.blit( self.assets.background,(0,0) )
         self.all_sprites_list.update()
+
+        for bullet in self.bullets_a_list:
+            if bullet.rect.x > 700 and bullet.collition(self.playerB) :
+                print("BOOM !!")
+        for bullet in self.bullets_b_list:
+            if bullet.rect.x < 100 and bullet.collition(self.playerA) :
+                print("BOOM !!")
+
         # self.screen.fill(self.BLACK) #background color of screen/ Redraw black
         #draw the net
         # pygame.draw.line(screen, WHITE, [349,0],[349,500],5)

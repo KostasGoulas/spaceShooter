@@ -1,6 +1,6 @@
 import pygame
 from random import randint
-# import math
+from algos import is_point_inside_box
 
 BLACK=(0,0,0)
 
@@ -13,12 +13,14 @@ class Ball(pygame.sprite.Sprite):
         self.image=pygame.Surface([width,height])
         self.image.fill(BLACK)
         self.image.set_colorkey(BLACK)
+        self.width = width
+        self.height = height
         
 
         #pygame.draw.rect(self.image, color, [0,0,width,height] )
         pygame.draw.circle(self.image,color, [width//2, height//2], width//2  )
         self.rect=self.image.get_rect()
-    
+ 
     def get_position(self):
         return (self.rect.x, self.rect.y)
 
@@ -52,6 +54,13 @@ class Bullet(Ball):
         self.player = player
     def update(self):
         self.moveForword(self.player)
+
+    def collition( self, obj ):
+        # return True
+        p1 = [obj.rect.x , obj.rect.y]
+        if is_point_inside_box(self.rect.center, p1, obj.width, obj.height):
+            return True
+        return False
 
 # class colitionControl(math.Control):
 #     def execute(self, resiver):
