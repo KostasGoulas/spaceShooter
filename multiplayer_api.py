@@ -220,6 +220,9 @@ class SpaceShooterMult2():
 
         self.healthA = player_assets.Health( 4, (255,0,0,40), (60, 30) )
         self.healthB = player_assets.Health( 4, (0,0,255,40), (700, 30))
+        self.end = False
+        self.RedWon = False
+        self.BlueWon = False
         if mode == 's':
             print( "OPEN THE SERVER")
             self.network.connectServer()
@@ -388,11 +391,28 @@ class SpaceShooterMult2():
             if bullet.rect.x < 10 :
                 self.pop_sprite(self.bullets_b_list, bullet)
                 break
-
+        if self.healthA.empty():
+            self.end = True
+            self.BlueWon = True
+        if self.healthB.empty():
+            self.end = True
+            self.RedWon = True
 
     def onDraw(self):
         win.screen.fill((0, 0, 0))
         win.screen.blit( self.assets.background,(0,0) )
+        if self.end :
+            font = pygame.font.Font(pygame.font.get_default_font(), 60)
+            text_surface = font.render("END", True, self.RED)
+            win.screen.blit( text_surface,(350,300) )
+            if self.RedWon :
+                text_surface_2 = font.render("Red WINS", True, self.RED)
+                win.screen.blit( text_surface_2,(250,400) )
+            else :
+                text_surface_2 = font.render("Blue WINS", True, self.BLUE)
+                win.screen.blit( text_surface_2,(250,400) )
+
+            return
 
         self.update()
         # self.screen.fill(self.BLACK) #background color of screen/ Redraw black
