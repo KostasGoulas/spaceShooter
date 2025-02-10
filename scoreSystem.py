@@ -18,13 +18,14 @@ class Score:
         
         self.font = pygame.font.Font(pygame.font.get_default_font(), 50)
         self.count = 0
+        self.first_draw = True
 
     def updateScore(self, score):
         self.score = score
 
     def updateHightScore(self):
         # id is based 1 
-        if self.score > self.HightScore :
+        if self.score < self.HightScore :
             self.HightScore = self.score
             size = self.DB.size()
             print(size)
@@ -38,9 +39,14 @@ class Score:
                 self.insertToDataBase(self.name, float(tmp[2]) )
             
             # check if size > 10 (so old size + 1 > 10) and keep only 10
-            if size+1 > 10:
-                for id in range(11,size):
-                    self.DB.delete(i)
+        else :
+            self.insertToDataBase(self.name, float(self.score))
+        
+        self.DB.sort_and_store()
+
+        size = self.DB.size()
+        if size+1 > 10:
+            self.DB.pop_last()
 
     def insertToDataBase(self, name, score):
         self.DB.insert(name, score)
@@ -55,7 +61,9 @@ class Score:
         return self.DB.readFirst()
     
     def onDraw(self):
-        self.updateHightScore()
+        if self.first_draw:
+            self.updateHightScore()
+            self.first_draw = False
         score = self.score
         hightscore = self.HightScore
         width  = win.screen.get_width()

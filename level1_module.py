@@ -58,6 +58,8 @@ class Player( GameObject ):
         self.health_bars = health_bars
         self.bullets = 0
         self.move_dis = asset.get_width()/4
+        self.score = 0
+        self.prev_helthbar = self.health_bars
 
     def ResetStats(self):
         self.time = 0
@@ -81,10 +83,20 @@ class Player( GameObject ):
     def move_right(self):
         self.update(self.move_dis)
 
+    def update_score(self):
+        dec = self.prev_helthbar - self.health_bars
+        self.prev_helthbar = self.health_bars
+        
+        # self.score = self.score + (10**dec)//1 + ((self.bullets *0.01) + (self.time*0.000001))//1
+        self.score = self.score + (10*dec)//1 + ((self.bullets) + (self.time*0.1))//1
+        print(self.bullets)
+        self.bullets = 0
+        if self.time == 10:
+            self.time = 0
+        
     def get_score(self):
-        if self.health_bars == 0 or self.bullets == 0 or self.time == 0:
-            return 0
-        return (100 * self.health_bars) - ((self.bullets *0.2) - (self.time*0.2))
+        self.update_score()
+        return self.score
 
     
 class LevelBullets:

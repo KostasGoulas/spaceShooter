@@ -19,6 +19,7 @@ class GamesDataBase :
     
     def size(self):
         table = self.readTable()
+        print(table)
         return len(table)
 
     def insert(self, name, score):
@@ -65,6 +66,39 @@ class GamesDataBase :
         DELETE FROM game WHERE id = {id};
         """
         self.__execute_query(delete_query)
+    def pop_last(self):
+        query = "DELETE FROM game WHERE id = (SELECT MAX(id) FROM game);"
+        self.__execute_query(query)
+        print("Last record deleted successfully!")
+
+    def sort_and_store(self):
+        # Create a new table with the same schema
+        create_temp_table_query = """
+        CREATE TABLE temp_game (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            score FLOAT
+        );
+        """
+        self.__execute_query(create_temp_table_query)
+
+        # Copy sorted data into the new table
+        insert_sorted_query = """
+        INSERT INTO temp_game (name, score)
+        SELECT name, score FROM game ORDER BY score ASC;
+        """
+        self.__execute_query(insert_sorted_query)
+
+        # Delete the original table
+        drop_query = "DROP TABLE game;"
+        self.__execute_query(drop_query)
+
+        # Rename temp_game to game
+        rename_query = "ALTER TABLE temp_game RENAME TO game;"
+        self.__execute_query(rename_query)
+
+        print("Database sorted successfully!")
+
 
     # private :
     def __create_connection(self, path):

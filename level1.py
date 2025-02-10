@@ -33,6 +33,7 @@ class Level_1 :
 
         # HEALTH:
         self.helthPos = (15,15)
+        self.scorePos = (415,30)
         self.FirstBarPos = (15+3, 15+3)
         self.healthTable = self.assets.healthTable
         self.HealthTableObject = GameObject( self.healthTable, self.helthPos[0], self.helthPos[1] )
@@ -46,6 +47,7 @@ class Level_1 :
 
         self.controlBullet   = l1.newBulletControl()
         self.controlColition = l1.colitionControl()
+        self.font = pygame.font.Font(pygame.font.get_default_font(), 25)
 
     def Reset(self):
         self.helthBars = [ GameObject(self.healthBar, self.FirstBarPos[0] + i*self.health_bar_width, self.FirstBarPos[1] ) for i in range(0,8) ]
@@ -111,6 +113,7 @@ class Level_1 :
         win.screen.blit( self.assets.background,(0,0) )
         win.screen.blit( self.character.asset, self.character.position() )
 
+
         self.Enemies.onDraw()
         win.screen.blit(self.healthTable, self.helthPos)
         for bar in self.helthBars : 
@@ -127,3 +130,7 @@ class Level_1 :
         elif self.collide_explor[0] and self.ex_c >= 8 :
             self.collide_explor[0] = False
             self.ex_c = 0
+        
+        #score 
+        text_surface = self.font.render("level 1 score : "+str(self.character.get_score()), True, (35, 180, 35, 255))
+        win.screen.blit(text_surface, self.scorePos)

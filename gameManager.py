@@ -27,6 +27,7 @@ class gameManager:
         self.is_connected = False
     def setScore(self):
         score = self.level_1.character.get_score()
+        score = score + self.level_2.character.get_score()
         if score > 0 :
             self.Score.updateScore(score)
 
