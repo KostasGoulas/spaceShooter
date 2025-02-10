@@ -60,6 +60,12 @@ class GamesDataBase :
         self.__execute_query(update)
         return prev
     
+    def delete(self, id):
+        delete_query = f"""
+        DELETE FROM game WHERE id = {id};
+        """
+        self.__execute_query(delete_query)
+
     # private :
     def __create_connection(self, path):
         connection = None

@@ -36,6 +36,11 @@ class Score:
                     for i in range( 2, size ):
                         tmp = self.UpdateDataBase( i, tmp[1], float(tmp[2]))
                 self.insertToDataBase(self.name, float(tmp[2]) )
+            
+            # check if size > 10 (so old size + 1 > 10) and keep only 10
+            if size+1 > 10:
+                for id in range(11,size):
+                    self.DB.delete(i)
 
     def insertToDataBase(self, name, score):
         self.DB.insert(name, score)
