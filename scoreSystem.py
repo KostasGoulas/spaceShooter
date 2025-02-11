@@ -73,7 +73,7 @@ class Score:
         text_surface = self.font.render(f"SCORE {score}", True, (255, 255, 255, 100))
         if self.count < 8:
             win.screen.blit(text_surface, (width/2 - 50*5, height/5 ))
-        text_surface = self.font.render(f"Hight SCORE {hightscore}", True, (255, 255, 255, 100))
+        text_surface = self.font.render(f"BEST SCORE {hightscore}", True, (255, 255, 255, 100))
         if self.count < 8:
             win.screen.blit(text_surface, (width/2 - 50*5, 2*height/5 ))
         self.count += 1
