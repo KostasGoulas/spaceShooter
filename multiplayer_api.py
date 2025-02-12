@@ -65,18 +65,9 @@ class SpaceShooterMult2():
         self.RED=(255,0,0)
         self.BLUE=(0,0,255)
         self.main_loop = True #flag to indicate that we are working on main loop
-        # self.playerA = player_assets.Player(self.RED, self.radius, self.radius, 0 )
-        # self.playerA.set_uper_and_down_lims( 0, 800 - self.radius )
-        # self.playerA.rect.center = (self.radius, 200)
         self.players_width = 50
-        self.playerA = player_assets.Player( player=1, width=self.players_width, x=    self.players_width, y=200 )
-        self.playerB = player_assets.Player( player=0, width=self.players_width, x=800-2*self.players_width, y=200 )
-        # self.playerB = player_assets.Player(self.BLUE, self.radius, self.radius, 1 )
-        # self.playerB.set_uper_and_down_lims( 0, 800-self.radius )
-        # self.playerB.rect.center = (800-self.radius, 200)
-        # self.all_sprites_list=pygame.sprite.Group()
-        # self.all_sprites_list.add(self.playerA)
-        # self.all_sprites_list.add(self.playerB)
+        self.playerA = player_assets.Player( player=1, width=self.players_width, x=    self.players_width, y=500 )
+        self.playerB = player_assets.Player( player=0, width=self.players_width, x=800-2*self.players_width, y=500 )
         self.bullets_a_list = pygame.sprite.Group()
         self.bullets_b_list = pygame.sprite.Group()
         self.bullet_a_init_x = 100
@@ -88,8 +79,10 @@ class SpaceShooterMult2():
         self.network = MultiplayerNetwork()
         self.mode = mode
 
-        self.healthA = player_assets.Health( 4, (255,0,0,40), (60, 30) )
-        self.healthB = player_assets.Health( 4, (0,0,255,40), (700, 30))
+        # self.healthA = player_assets.Health( 4, (255,0,0,40), (60, 30) )
+        # self.healthB = player_assets.Health( 4, (0,0,255,40), (700, 30))
+        self.healthA = player_assets.HealthBars( player=1, width=30, x=50, y=50 )
+        self.healthB = player_assets.HealthBars( player=0, width=30, x=800-50-(30+5)*4, y=50 )
         self.end = False
         self.RedWon = False
         self.BlueWon = False
@@ -236,8 +229,6 @@ class SpaceShooterMult2():
     
     def update(self):
         # self.all_sprites_list.update()
-        win.screen.blit( self.playerA.asset, self.playerA.get_position() )
-        win.screen.blit( self.playerB.asset, self.playerB.get_position() )
         self.bullets_a_list.update()
         self.bullets_b_list.update()
 
@@ -291,6 +282,8 @@ class SpaceShooterMult2():
         #draw the net
         # pygame.draw.line(screen, WHITE, [349,0],[349,500],5)
         # self.all_sprites_list.draw(win.screen)
+        win.screen.blit( self.playerA.asset, self.playerA.get_position() )
+        win.screen.blit( self.playerB.asset, self.playerB.get_position() )
         self.bullets_a_list.draw(win.screen)
         self.bullets_b_list.draw(win.screen)
         self.healthA.draw(win)

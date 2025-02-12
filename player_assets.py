@@ -11,6 +11,10 @@ class GameAssets_m :
         self.playerRed = pygame.transform.scale(self.playerRed, (width, width))
         self.playerBlue = self.loadImageAsset("spaceBlue.png")
         self.playerBlue = pygame.transform.scale(self.playerBlue, (width, width))
+        self.healthRed = self.loadImageAsset("healthred.png")
+        self.healthRed = pygame.transform.scale(self.healthRed, (width, width))
+        self.healthBlue = self.loadImageAsset("healthblue.png")
+        self.healthBlue = pygame.transform.scale(self.healthBlue, (width, width))
     def loadImageAsset(self, name):
         return pygame.image.load(f"assets\{name}")
 
@@ -46,7 +50,7 @@ class Ball(pygame.sprite.Sprite):
     def moveDown(self):
         self.move(0, 10)
     def moveForword(self, player):
-        velocity = 10
+        velocity = 15
         if player == 0 :
             self.move(velocity,0)
         else :
@@ -94,6 +98,59 @@ class GameObject:
             self.move(5,0)
         else :
             self.move(-5, 0)
+
+class HealthBar(GameObject):
+    def __init__(self, player, width, x, y):
+        assets = GameAssets_m(width)
+        self.x = x
+        self.y = y
+        self.width = assets.playerRed.get_width()
+        self.height = assets.playerRed.get_height()
+        if player == 0:
+            super().__init__(assets.healthBlue, x, y)
+        else :
+            super().__init__(assets.healthRed, x, y)
+
+        self.player = player
+class HealthBars():
+    def __init__( self, player, width, x, y ):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.num = 4
+        self.player = player
+        self.gap = 5
+        self.font = pygame.font.Font(pygame.font.get_default_font(), 30)
+        self.bars = [ 
+                      HealthBar(player, width, x, y),
+                      HealthBar(player, width, x+width+self.gap, y), 
+                      HealthBar(player, width, x+2*(width+self.gap), y),
+                      HealthBar(player, width, x+3*(width+self.gap), y)
+                      ]
+        self.count = 0
+    def hited(self):
+        if self.num != 0:
+            self.num -= 1
+            if self.player == 1:
+                self.bars.pop()
+            else :
+                self.bars.remove(self.bars[0])
+    def empty(self):
+        return self.num == 0
+
+    def draw(self,win):
+        if self.count > 8 :
+            if self.player == 1:
+                text_surface = self.font.render("RED PLAYER", True, (155,0,0,100))
+                win.screen.blit( text_surface, (self.x-self.width+5, self.y-self.width-5) )
+            else :
+                text_surface = self.font.render("BLUE PLAYER", True, (0,0,155,100))
+                win.screen.blit( text_surface, (self.x-self.width+5, self.y-self.width-5) )
+        for bar in self.bars :
+            win.screen.blit( bar.asset, bar.get_position() )
+        self.count += 1
+        self.count = self.count%16
+
 
 class Player(GameObject):
     def __init__(self, player, width, x, y):
